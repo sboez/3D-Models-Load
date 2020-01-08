@@ -66,9 +66,11 @@
 			loader.load(path, function(gltf) {
 				gltf.scene.traverse(function(child) {
 					if (child.isMesh) {
+						if (child.name == "SR_Veh_StreetCar_Purple") addGUI(gltf.scene, child);
 						child.castShadow = true;
 						child.receiveShadow = true;
 					}
+				console.log(child);
 				});
 				/*** Rescale your model if needed ***/
 				gltf.scene.scale.set(100,100,100);
@@ -83,6 +85,54 @@
 		camera.updateProjectionMatrix();
 		renderer.setSize( window.innerWidth, window.innerHeight );
 	}
+
+	let gui = new dat.GUI();
+	function addGUI(object, child) {
+		var params = {
+			color  : 0xFECA09,
+			posX   : 0,
+		    posZ   : 0,
+		    scaleX : 0,
+		    scaleY : 0,
+		    scaleZ : 0,
+		    rotY   : 0,
+		    rotX   : 0,
+		};
+		/* COLOR */
+		let folderSkin = gui.addFolder('Color');
+		folderSkin.addColor(params, 'color').onChange(function() { 
+		    if (child.name == "SR_Veh_StreetCar_Purple") child.material.color.set(params.color);
+		});
+		folderSkin.open();
+		/* POSITION */
+		let folderPos = gui.addFolder('Position');
+		folderPos.add(params, 'posX', -140, 140).onChange(function() { 
+		    object.position.x = (params.posX);
+		});
+		folderPos.add(params, 'posZ', -140, 140).onChange(function() { 
+		    object.position.z = (params.posZ);
+		});
+		/* SCALE */
+		let folderScale = gui.addFolder('Scale');
+		folderScale.add(params, 'scaleX', 50, 300).onChange(function() { 
+		    object.scale.x = (params.scaleX);
+		});
+		folderScale.add(params, 'scaleY', 50, 300).onChange(function() { 
+		    object.scale.y = (params.scaleY);
+		});
+		folderScale.add(params, 'scaleZ', 50, 300).onChange(function() { 
+		    object.scale.z = (params.scaleZ);
+		});
+		/* ROTATION */
+		let folderRot = gui.addFolder('Rotation');
+		folderRot.add(params, 'rotY', -5, 5).onChange(function() { 
+		    object.rotation.y = (params.rotY);
+		});
+	    folderRot.add(params, 'rotX', -5, 5).onChange(function() { 
+		    object.rotation.x = (params.rotX);
+		});
+	}
+
 
 //====================//
 //      ANIMATION     //
