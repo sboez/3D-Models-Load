@@ -1,7 +1,8 @@
 //====================//
 //      VARIABLES     //
 //====================//
-	var camera, renderer, scene;
+	var camera, renderer, scene, state;
+	var light, spotLight_left, spotLight_right, spotLight_front, spotLight_back;
 
 //====================//
 //         GO         //
@@ -24,9 +25,6 @@
 		scene = new THREE.Scene();
 		scene.background = new THREE.Color(0xa0a0a0);
 
-		let light = new THREE.HemisphereLight(0xffffff, 0x404040, 1); 
-		scene.add(light);
-
 		let mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(400, 400), new THREE.MeshPhongMaterial({ color: 0xcfcfcf, depthWrite: false }));
 		mesh.rotation.x = -Math.PI / 2;
 		mesh.receiveShadow = true;
@@ -44,7 +42,34 @@
 		let controls = new THREE.OrbitControls(camera, renderer.domElement);
 		controls.update();
 
+		setLights();
+
 		window.addEventListener('resize', onWindowResize, false);
+	}
+
+	function setLights() {
+		light = new THREE.HemisphereLight(0xffffff, 0x404040, 1); 
+		scene.add(light);
+
+		spotLight_left = new THREE.SpotLight(0xffffff);
+		spotLight_left.position.set(-100, 10, 0);
+		scene.add(spotLight_left);
+		spotLight_left.visible = false;
+				
+		spotLight_right = new THREE.SpotLight(0xffffff);
+		spotLight_right.position.set(100, 10, 0);
+		scene.add(spotLight_right);
+		spotLight_right.visible = false;
+
+		spotLight_back = new THREE.SpotLight(0xffffff);
+		spotLight_back.position.set(0, 10, -150);
+		scene.add(spotLight_back);
+		spotLight_back.visible = false;
+
+		spotLight_front = new THREE.SpotLight(0xffffff);
+		spotLight_front.position.set(0, 70, 150);
+		scene.add(spotLight_front);
+		spotLight_front.visible = false;
 	}
 
 	function loadFbx(path) {
@@ -70,7 +95,6 @@
 						child.castShadow = true;
 						child.receiveShadow = true;
 					}
-				console.log(child);
 				});
 				/*** Rescale your model if needed ***/
 				gltf.scene.scale.set(100,100,100);
@@ -85,54 +109,6 @@
 		camera.updateProjectionMatrix();
 		renderer.setSize( window.innerWidth, window.innerHeight );
 	}
-
-	let gui = new dat.GUI();
-	function addGUI(object, child) {
-		var params = {
-			color  : 0xFECA09,
-			posX   : 0,
-		    posZ   : 0,
-		    scaleX : 0,
-		    scaleY : 0,
-		    scaleZ : 0,
-		    rotY   : 0,
-		    rotX   : 0,
-		};
-		/* COLOR */
-		let folderSkin = gui.addFolder('Color');
-		folderSkin.addColor(params, 'color').onChange(function() { 
-		    if (child.name == "SR_Veh_StreetCar_Purple") child.material.color.set(params.color);
-		});
-		folderSkin.open();
-		/* POSITION */
-		let folderPos = gui.addFolder('Position');
-		folderPos.add(params, 'posX', -140, 140).onChange(function() { 
-		    object.position.x = (params.posX);
-		});
-		folderPos.add(params, 'posZ', -140, 140).onChange(function() { 
-		    object.position.z = (params.posZ);
-		});
-		/* SCALE */
-		let folderScale = gui.addFolder('Scale');
-		folderScale.add(params, 'scaleX', 50, 300).onChange(function() { 
-		    object.scale.x = (params.scaleX);
-		});
-		folderScale.add(params, 'scaleY', 50, 300).onChange(function() { 
-		    object.scale.y = (params.scaleY);
-		});
-		folderScale.add(params, 'scaleZ', 50, 300).onChange(function() { 
-		    object.scale.z = (params.scaleZ);
-		});
-		/* ROTATION */
-		let folderRot = gui.addFolder('Rotation');
-		folderRot.add(params, 'rotY', -5, 5).onChange(function() { 
-		    object.rotation.y = (params.rotY);
-		});
-	    folderRot.add(params, 'rotX', -5, 5).onChange(function() { 
-		    object.rotation.x = (params.rotX);
-		});
-	}
-
 
 //====================//
 //      ANIMATION     //
