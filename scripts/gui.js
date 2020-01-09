@@ -9,6 +9,7 @@ function addGUI(object, child) {
 	    scaleZ : 0,
 	    rotY   : 0,
 	    rotX   : 0,
+	    color  : 0xffffff,
 	    normal: function() {
 	    	scene.background = new THREE.Color(0xa0a0a0);
 	    	light.visible    = true;
@@ -16,6 +17,8 @@ function addGUI(object, child) {
 			spotLight_right.visible = false;
 			spotLight_back.visible  = false;
 			spotLight_front.visible = false;
+			folderLight.visible     = false;
+			folderLight.close();
 	    },
 		showroom: function() {
 			scene.background = new THREE.Color(0x000000);
@@ -24,6 +27,7 @@ function addGUI(object, child) {
 			spotLight_right.visible = true;
 			spotLight_back.visible  = true;
 			spotLight_front.visible = true;
+			folderLight.open();
 		},
 		reset: function() {
 			object.position.set(0, 0, 0);
@@ -35,7 +39,7 @@ function addGUI(object, child) {
 	/* POSITION */
 	let folderPos = gui.addFolder('Position');
 	folderPos.add(params, 'posX', -140, 140).onChange(function() { 
-	    object.position.x = (params.posX);
+	    object.position.x = (params.posX).listen();
 	});
 	folderPos.add(params, 'posZ', -140, 140).onChange(function() { 
 	    object.position.z = (params.posZ);
@@ -59,6 +63,13 @@ function addGUI(object, child) {
 	});
     folderRot.add(params, 'rotX', -5, 5).onChange(function() { 
 	    object.rotation.x = (params.rotX);
+	});
+	let folderLight = gui.addFolder('Spotlights color');
+	folderLight.addColor(params, 'color').onChange(function() { 
+	    spotLight_left.color.set(params.color);
+	    spotLight_right.color.set(params.color);
+	    spotLight_front.color.set(params.color);
+	    spotLight_back.color.set(params.color);
 	});
 	/* MODE */
 	gui.add(params, 'normal');
