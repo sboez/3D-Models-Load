@@ -18,6 +18,8 @@
 	function init() {
 		let container = document.createElement('div');
 		document.body.appendChild(container);
+		document.addEventListener('keydown', onDocumentKeyDown, false);
+		window.addEventListener('resize', onWindowResize, false);
 
 		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
 		camera.position.set(250, 180, 280);
@@ -25,7 +27,7 @@
 		scene = new THREE.Scene();
 		scene.background = new THREE.Color(0xa0a0a0);
 
-		let mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(400, 400), new THREE.MeshPhongMaterial({ color: 0xcfcfcf, depthWrite: false }));
+		let mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000), new THREE.MeshPhongMaterial({ color: 0xcfcfcf, depthWrite: false }));
 		mesh.rotation.x = -Math.PI / 2;
 		mesh.receiveShadow = true;
 		scene.add(mesh);
@@ -43,8 +45,6 @@
 		controls.update();
 
 		setLights();
-
-		window.addEventListener('resize', onWindowResize, false);
 	}
 
 	function setLights() {
@@ -75,7 +75,7 @@
 	function loadFbx(path) {
 		var loader = new THREE.FBXLoader();
 		loader.load(path, function(object) {
-			object.traverse( function (child) {
+			object.traverse(function(child) {
 				if (child.isMesh) {
 					child.castShadow = true;
 					child.receiveShadow = true;
@@ -113,6 +113,17 @@
 //====================//
 //      ANIMATION     //
 //====================//
+	function onDocumentKeyDown(event) {
+		let object = scene.getObjectByName('SR_Veh_StreetCar_Purple');
+		let speed = 0.05;
+	    let keyCode = event.which;
+
+	    if (keyCode == 87) object.translateY(speed);
+	    else if (keyCode == 83) object.translateY(-speed);
+	    else if (keyCode == 65) object.rotateZ(-speed);
+	    else if (keyCode == 68) object.rotateZ(speed);
+	};
+
 	function animate() {
 		requestAnimationFrame(animate);
 		renderer.render(scene, camera);

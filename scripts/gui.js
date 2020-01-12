@@ -3,7 +3,7 @@ let gui = new dat.GUI();
 function addGUI(object, child) {
 	var params = {
 		posX   : 0,
-	    posZ   : 0,
+	    posY   : 0,
 	    scaleX : 0,
 	    scaleY : 0,
 	    scaleZ : 0,
@@ -12,7 +12,7 @@ function addGUI(object, child) {
 	    color  : 0xffffff,
 	    normal: function() {
 	    	scene.background = new THREE.Color(0xa0a0a0);
-	    	light.visible    = true;
+	    	light.visible = true;
 	    	spotLight_left.visible  = false;
 			spotLight_right.visible = false;
 			spotLight_back.visible  = false;
@@ -22,7 +22,7 @@ function addGUI(object, child) {
 	    },
 		showroom: function() {
 			scene.background = new THREE.Color(0x000000);
-			light.visible    = false;
+			light.visible = false;
 			spotLight_left.visible  = true;
 			spotLight_right.visible = true;
 			spotLight_back.visible  = true;
@@ -39,12 +39,11 @@ function addGUI(object, child) {
 	/* POSITION */
 	let folderPos = gui.addFolder('Position');
 	folderPos.add(params, 'posX', -140, 140).onChange(function() { 
-	    object.position.x = (params.posX).listen();
+	    object.position.x = (params.posX);
 	});
-	folderPos.add(params, 'posZ', -140, 140).onChange(function() { 
-	    object.position.z = (params.posZ);
+	folderPos.add(params, 'posY', -140, 140).onChange(function() { 
+	    object.position.z = (params.posY);
 	});
-	folderPos.open();
 	/* SCALE */
 	let folderScale = gui.addFolder('Scale');
 	folderScale.add(params, 'scaleX', 50, 300).onChange(function() { 
