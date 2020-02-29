@@ -17,8 +17,6 @@ function addGUI(object) {
 			spotLight_right.visible = false;
 			spotLight_back.visible  = false;
 			spotLight_front.visible = false;
-			folderLight.visible     = false;
-			folderLight.close();
 	    },
 		showroom: function() {
 			scene.background = new THREE.Color(0x000000);
@@ -27,7 +25,6 @@ function addGUI(object) {
 			spotLight_right.visible = true;
 			spotLight_back.visible  = true;
 			spotLight_front.visible = true;
-			folderLight.open();
 		},
 		reset: function() {
 			object.position.set(0, 0, 0);
@@ -51,43 +48,43 @@ function addGUI(object) {
 
 	/* POSITION */
 	let folderPos = gui.addFolder('Position');
-	folderPos.add(params, 'posX', -140, 140).onChange(function() { 
+	folderPos.add(params, 'posX', -140, 140).name('X').onChange(function() { 
 	    object.position.x = (params.posX);
 	});
-	folderPos.add(params, 'posY', -140, 140).onChange(function() { 
+	folderPos.add(params, 'posY', -140, 140).name('Y').onChange(function() { 
 	    object.position.z = (params.posY);
 	});
 	/* SCALE */
 	let folderScale = gui.addFolder('Scale');
-	folderScale.add(params, 'scaleX', 50, 300).onChange(function() { 
+	folderScale.add(params, 'scaleX', 50, 300).name('X').onChange(function() { 
 	    object.scale.x = (params.scaleX);
 	});
-	folderScale.add(params, 'scaleY', 50, 300).onChange(function() { 
+	folderScale.add(params, 'scaleY', 50, 300).name('Y').onChange(function() { 
 	    object.scale.y = (params.scaleY);
 	});
-	folderScale.add(params, 'scaleZ', 50, 300).onChange(function() { 
+	folderScale.add(params, 'scaleZ', 50, 300).name('Z').onChange(function() { 
 	    object.scale.z = (params.scaleZ);
 	});
 	/* ROTATION */
 	let folderRot = gui.addFolder('Rotation');
-	folderRot.add(params, 'rotY', -5, 5).onChange(function() { 
+	folderRot.add(params, 'rotY', -5, 5).name('Y').onChange(function() { 
 	    object.rotation.y = (params.rotY);
 	});
-    folderRot.add(params, 'rotX', -5, 5).onChange(function() { 
+    folderRot.add(params, 'rotX', -5, 5).name('X').onChange(function() { 
 	    object.rotation.x = (params.rotX);
-	});
-	let folderLight = gui.addFolder('Spotlights color');
-	folderLight.addColor(params, 'color').onChange(function() { 
-	    spotLight_left.color.set(params.color);
-	    spotLight_right.color.set(params.color);
-	    spotLight_front.color.set(params.color);
-	    spotLight_back.color.set(params.color);
 	});
 	let folderModel = gui.addFolder('Model');
 	folderModel.add(params, 'model').name('Load your model');
 	folderModel.add(params, 'remove').name('Remove model');
 	/* MODE */
-	gui.add(params, 'normal');
-	gui.add(params, 'showroom');
+	let folderMode = gui.addFolder('Mode');
+	folderMode.add(params, 'normal').name('Interactive');
+	folderMode.add(params, 'showroom').name('Showroom');
+	folderMode.addColor(params, 'color').name('Color').onChange(function() { 
+	    spotLight_left.color.set(params.color);
+	    spotLight_right.color.set(params.color);
+	    spotLight_front.color.set(params.color);
+	    spotLight_back.color.set(params.color);
+	});
 	gui.add(params, 'reset');
 }

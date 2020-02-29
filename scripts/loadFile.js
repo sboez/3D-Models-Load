@@ -40,7 +40,7 @@ function loadFile(file, object) {
 			scene.remove(object);
 			console.log("Model was removed !");
 			reader.onload = readerEvent => {
-				let contents = readerEvent.target.result;t
+				let contents = readerEvent.target.result;
 				let loader = new THREE.FBXLoader();
 				try {
 			    	object = loader.parse(contents);
