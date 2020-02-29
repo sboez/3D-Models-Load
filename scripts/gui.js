@@ -1,6 +1,6 @@
 let gui = new dat.GUI();
 
-function addGUI(object, child) {
+function addGUI(object) {
 	var params = {
 		posX   : 0,
 	    posY   : 0,
@@ -34,8 +34,21 @@ function addGUI(object, child) {
 			object.scale.set(100, 100, 100);
 			object.rotation.set(0, 0, 0);
 			this.normal();
+		},
+		model: function() {
+			let input = document.createElement('input');
+			input.type = 'file';
+		    input.click();
+			input.onchange = e => { 
+				var file = e.target.files[0];
+				loadFile(file, object);
+			}
+		},
+		remove: function() {
+			scene.remove(object);
 		}
 	}
+
 	/* POSITION */
 	let folderPos = gui.addFolder('Position');
 	folderPos.add(params, 'posX', -140, 140).onChange(function() { 
@@ -70,6 +83,9 @@ function addGUI(object, child) {
 	    spotLight_front.color.set(params.color);
 	    spotLight_back.color.set(params.color);
 	});
+	let folderModel = gui.addFolder('Model');
+	folderModel.add(params, 'model').name('Load your model');
+	folderModel.add(params, 'remove').name('Remove model');
 	/* MODE */
 	gui.add(params, 'normal');
 	gui.add(params, 'showroom');

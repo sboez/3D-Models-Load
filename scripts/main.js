@@ -1,7 +1,7 @@
 //====================//
 //      VARIABLES     //
-//====================//
-	var camera, renderer, scene, state;
+//====================// 
+	var camera, renderer, scene, state, container;
 	var light, spotLight_left, spotLight_right, spotLight_front, spotLight_back;
 
 //====================//
@@ -16,12 +16,12 @@
 //   SET UP THREE JS  //
 //====================//
 	function init() {
-		let container = document.createElement('div');
+		container = document.createElement('div');
 		document.body.appendChild(container);
 		document.addEventListener('keydown', onDocumentKeyDown, false);
 		window.addEventListener('resize', onWindowResize, false);
 
-		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
 		camera.position.set(250, 180, 280);
 
 		scene = new THREE.Scene();
@@ -32,7 +32,6 @@
 		mesh.receiveShadow = true;
 		scene.add(mesh);
 
-		/*** Change the model here to add your ***/
 		loadGltf('assets/models/gltf/street_car.glb');
 
 		renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -72,31 +71,17 @@
 		spotLight_front.visible = false;
 	}
 
-	function loadFbx(path) {
-		var loader = new THREE.FBXLoader();
-		loader.load(path, function(object) {
-			object.traverse(function(child) {
-				if (child.isMesh) {
-					child.castShadow = true;
-					child.receiveShadow = true;
-				}
-			});
-			scene.add(object);
-		});
-	}
-
 	function loadGltf(path) {
 		return new Promise((resolve, reject) => {
 			let loader = new THREE.GLTFLoader();
 			loader.load(path, function(gltf) {
 				gltf.scene.traverse(function(child) {
 					if (child.isMesh) {
-						if (child.name == "SR_Veh_StreetCar_Purple") addGUI(gltf.scene, child);
 						child.castShadow = true;
 						child.receiveShadow = true;
 					}
 				});
-				/*** Rescale your model if needed ***/
+				addGUI(gltf.scene);
 				gltf.scene.scale.set(100,100,100);
 				scene.add(gltf.scene);
 				return resolve(gltf.scene);
@@ -114,7 +99,7 @@
 //      ANIMATION     //
 //====================//
 	function onDocumentKeyDown(event) {
-		let object = scene.getObjectByName('SR_Veh_StreetCar_Purple');
+		let object = scene.getObjectById(1);
 		let speed = 0.05;
 	    let keyCode = event.which;
 
