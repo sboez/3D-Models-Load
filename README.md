@@ -1,6 +1,6 @@
 # 3D-Models-Load
 
-![GitHub top language](https://img.shields.io/github/languages/top/sboez/3D-Models-Load) ![GitHub last commit](https://img.shields.io/github/last-commit/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/badge/completion-30%25-blueviolet)
+![GitHub top language](https://img.shields.io/github/languages/top/sboez/3D-Models-Load) ![GitHub last commit](https://img.shields.io/github/last-commit/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/badge/completion-45%25-blueviolet)
 
 Load your 3D model FBX or GLTF/GLB easily in a Three.js scene
 

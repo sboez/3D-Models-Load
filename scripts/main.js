@@ -1,8 +1,8 @@
 //====================//
 //      VARIABLES     //
 //====================// 
-	var camera, renderer, scene, state, container;
-	var light, spotLight_left, spotLight_right, spotLight_front, spotLight_back;
+	let camera, renderer, scene, state, container, object, currentModel;
+	let light, spotLight_left, spotLight_right, spotLight_front, spotLight_back;
 
 //====================//
 //         GO         //
@@ -15,7 +15,7 @@
 //====================//
 //   SET UP THREE JS  //
 //====================//
-	function init() {
+	async function init() {
 		container = document.createElement('div');
 		document.body.appendChild(container);
 		document.addEventListener('keydown', onDocumentKeyDown, false);
@@ -32,8 +32,6 @@
 		mesh.receiveShadow = true;
 		scene.add(mesh);
 
-		loadGltf('assets/models/gltf/street_car.glb');
-
 		renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);
@@ -44,6 +42,26 @@
 		controls.update();
 
 		setLights();
+		await loadGltf('assets/models/gltf/street_car.glb');
+		addGUI(currentModel);
+	}
+
+	function loadGltf(path) {
+		return new Promise((resolve) => {
+			const loader = new THREE.GLTFLoader();
+			loader.load(path, function(gltf) {
+				gltf.scene.traverse(function(child) {
+					if (child.isMesh) {
+						child.castShadow = true;
+						child.receiveShadow = true;
+					}
+				});
+				currentModel = gltf.scene;
+				gltf.scene.scale.set(100,100,100);
+				scene.add(gltf.scene);
+				resolve(gltf.scene);
+			});
+		});
 	}
 
 	function setLights() {
@@ -71,24 +89,6 @@
 		spotLight_front.visible = false;
 	}
 
-	function loadGltf(path) {
-		return new Promise((resolve, reject) => {
-			let loader = new THREE.GLTFLoader();
-			loader.load(path, function(gltf) {
-				gltf.scene.traverse(function(child) {
-					if (child.isMesh) {
-						child.castShadow = true;
-						child.receiveShadow = true;
-					}
-				});
-				addGUI(gltf.scene);
-				gltf.scene.scale.set(100,100,100);
-				scene.add(gltf.scene);
-				return resolve(gltf.scene);
-			});
-		})
-	}
-
 	function onWindowResize() {
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
@@ -98,8 +98,7 @@
 //====================//
 //      ANIMATION     //
 //====================//
-	function onDocumentKeyDown(event) {
-		let object = scene.getObjectById(1);
+	function onDocumentKeyDown(event, object) {
 		let speed = 0.05;
 	    let keyCode = event.which;
 

@@ -1,18 +1,14 @@
 function loadFile(file, object) {
-  	let filename = file.name;
-	let extension = filename.split('.').pop().toLowerCase();
+  	const filename = file.name;
+	const extension = filename.split('.').pop().toLowerCase();
 	const reader = new FileReader();
 
 	switch (extension) {
 		case 'glb':
 		case 'gltf': 
-			scene.remove(object);
-			console.log("Model was removed !");
-			console.log("Object in the scene : ", object);
 			reader.onload = readerEvent => {
-		   		let contents = readerEvent.target.result;
-		      	let loader = new THREE.GLTFLoader();
-
+		   		const contents = readerEvent.target.result;
+		      	const loader = new THREE.GLTFLoader()
 		      	try {
 				    loader.parse(contents, '', function (gltf) {
 						gltf.scene.traverse(function(child) {
@@ -21,13 +17,10 @@ function loadFile(file, object) {
 								child.receiveShadow = true;
 							}
 						});
-						console.log("model added : ", gltf.scene);
-						gltf.scene = object;
-						object.scale.multiplyScalar(1);
-						scene.add(object);
-						console.log("New object in the scene : ", object);
+						currentModel = gltf.scene;
+						currentModel.scale.multiplyScalar(100);
+						scene.add(gltf.scene);
 					});
-					console.log("New model is here !");
 				}
 				catch(error) {
 					alert("Your file " + filename + "was not parsed correctly." + "\n\n" + "ERROR MESSAGE : " + error.message);
@@ -37,11 +30,9 @@ function loadFile(file, object) {
 			break;
 
 		case 'fbx':
-			scene.remove(object);
-			console.log("Model was removed !");
 			reader.onload = readerEvent => {
-				let contents = readerEvent.target.result;
-				let loader = new THREE.FBXLoader();
+				const contents = readerEvent.target.result;
+				const loader = new THREE.FBXLoader();
 				try {
 			    	object = loader.parse(contents);
 			    }
@@ -53,9 +44,9 @@ function loadFile(file, object) {
 						child.castShadow = true;
 						child.receiveShadow = true;
 					}
+					currentModel = object;
 					scene.add(object);
 				});
-				console.log("New model is here !");
 			}
 			reader.readAsArrayBuffer(file);
 			break;
