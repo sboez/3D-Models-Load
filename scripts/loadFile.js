@@ -1,3 +1,10 @@
+/*** If you want to add a texture for your .OBJ or .DAE model, you need to add
+this lines in the same way of material and change path.
+
+const textureLoader = new THREE.TextureLoader();
+const texture = textureLoader.load('assets/texture/image_0.png');
+if (child.isMesh) child.material.map = texture; ***/
+
 const reader = new FileReader();
 
 function loadFile(file, object) {
@@ -19,7 +26,7 @@ function loadFile(file, object) {
 			loadDae(file, filename, object);
 			break;
 		case 'obj':
-			alert("This file is not supported yet, only STL, DAE, FBX or GLB/GLTF model :-)");
+			loadObj(file, filename, object);
 			break;
 	}
 }
@@ -113,6 +120,27 @@ function loadDae(file, filename, object) {
             currentModel.scale.multiplyScalar(100);
             Scene.scene.add(object);
 	}	
+	reader.readAsText(file);
+}
+
+function loadObj(file, filename, object) {
+	reader.onload = readerEvent => {
+		const contents = readerEvent.target.result;
+		const loader = new THREE.OBJLoader();
+		const material = new THREE.MeshPhongMaterial({ color: 0xAAAAAA, specular: 0x111111, shininess: 100 });
+		 try {
+            object = loader.parse(contents);
+        }
+        catch (err) {
+        	errorMessage();
+        }
+         object.traverse(function (child) {
+            if (child.isMesh) child.material = material;
+        });
+        currentModel = object;
+		currentModel.scale.multiplyScalar(100);
+		Scene.scene.add(object);
+	}
 	reader.readAsText(file);
 }
 

@@ -58,6 +58,15 @@ function addGUI(object) {
 }
 
 function setGUI(params) {
+	setPosition(params);
+	setScale(params);
+	setRotation(params);
+	setModel(params);
+	setMode(params);
+	gui.add(params, 'reset');
+}
+
+function setPosition(params) {
 	const folderPos = gui.addFolder('Position');
 	folderPos.add(params, 'posX', -140, 140).name('X').onChange(() => { 
 	    currentModel.position.x = (params.posX);
@@ -65,7 +74,9 @@ function setGUI(params) {
 	folderPos.add(params, 'posY', -140, 140).name('Y').onChange(() => { 
 	    currentModel.position.z = (params.posY);
 	});
+}
 
+function setScale(params) {
 	const folderScale = gui.addFolder('Scale');
 	folderScale.add(params, 'scaleX', 0, 300).name('X').onChange(() => { 
 	    currentModel.scale.x = (params.scaleX);
@@ -76,7 +87,9 @@ function setGUI(params) {
 	folderScale.add(params, 'scaleZ', 0, 300).name('Z').onChange(() => { 
 	    currentModel.scale.z = (params.scaleZ);
 	});
+}
 
+function setRotation(params) {
 	const folderRot = gui.addFolder('Rotation');
 	folderRot.add(params, 'rotY', -5, 5).name('Y').onChange(() => { 
 	    currentModel.rotation.y = (params.rotY);
@@ -84,12 +97,17 @@ function setGUI(params) {
     folderRot.add(params, 'rotX', -5, 5).name('X').onChange(() => { 
 	    currentModel.rotation.x = (params.rotX);
 	});
+}
 
+function setModel(params) {
 	const folderModel = gui.addFolder('Model');
 	folderModel.add(params, 'model').name('Load your model');
 	folderModel.add(params, 'sample').name('Samples');
 	folderModel.add(params, 'remove').name('Remove model');
+	folderModel.open();
+}
 
+function setMode(params) {
 	const folderMode = gui.addFolder('Mode');
 	folderMode.add(params, 'normal').name('Interactive');
 	folderMode.add(params, 'showroom').name('Showroom');
@@ -99,5 +117,4 @@ function setGUI(params) {
 	    Scene.spotLight_front.color.set(params.color);
 	    Scene.spotLight_back.color.set(params.color);
 	});
-	gui.add(params, 'reset');
 }

@@ -9,7 +9,7 @@ Load your 3D model easily in a Three.js scene and enjoy Showroom mode.
 **.STL, .DAE, .FBX, .GLTF, .GLB**
 
 Only FBX and GLTF/GLB files can show you the model with a texture. 
-Others needed to add texture manually, that's why I added a grey color by default.
+Others needed to add texture manually, that's why I added a grey color by default. But you can still change the path of the texture in the code.
 
 ## Work in progress...
 
