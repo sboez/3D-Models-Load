@@ -15,9 +15,11 @@ function loadFile(file, object) {
 		case 'stl':
 			loadStl(file, filename, object);
 			break;
-		case 'obj':
 		case 'dae':
-			alert("This file is not supported yet, only STL, FBX or GLB/GLTF model :-)");
+			loadDae(file, filename, object);
+			break;
+		case 'obj':
+			alert("This file is not supported yet, only STL, DAE, FBX or GLB/GLTF model :-)");
 			break;
 	}
 }
@@ -71,7 +73,7 @@ function loadFbx(file, filename, object) {
 function loadStl(file, filename, object) {
 	reader.onload = readerEvent => {
 		const contents = readerEvent.target.result;
-		let material = new THREE.MeshPhongMaterial({ color: 0xAAAAAA, specular: 0x111111, shininess: 200 });
+		const material = new THREE.MeshPhongMaterial({ color: 0xAAAAAA, specular: 0x111111, shininess: 100 });
 		let geometry;
 		try {
 			geometry = new THREE.STLLoader().parse(contents);
@@ -89,6 +91,29 @@ function loadStl(file, filename, object) {
 	}
 	if (reader.readAsBinaryString !== undefined) reader.readAsBinaryString(file);
     else reader.readAsArrayBuffer(file);
+}
+
+function loadDae(file, filename, object) {
+	reader.onload = readerEvent => {
+		const contents = readerEvent.target.result;
+		const loader = new THREE.ColladaLoader();
+		const material = new THREE.MeshPhongMaterial({ color: 0xAAAAAA, specular: 0x111111, shininess: 100 });
+		let collada;
+            try {
+                collada = loader.parse(contents);
+            }
+            catch(error) {
+            	errorMessage();
+            }
+            object = collada.scene;
+            for (var i = 0; i < object.children[0].children.length; i++) {
+		    	object.children[0].children[i].material = material;
+		    }
+            currentModel = object;
+            currentModel.scale.multiplyScalar(100);
+            Scene.scene.add(object);
+	}	
+	reader.readAsText(file);
 }
 
 function loadSample(path) {
