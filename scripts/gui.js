@@ -54,8 +54,10 @@ function addGUI(object) {
 			Scene.scene.remove(currentModel);
 		}
 	}
+	setGUI(params);
+}
 
-	/* POSITION */
+function setGUI(params) {
 	const folderPos = gui.addFolder('Position');
 	folderPos.add(params, 'posX', -140, 140).name('X').onChange(() => { 
 	    currentModel.position.x = (params.posX);
@@ -63,7 +65,7 @@ function addGUI(object) {
 	folderPos.add(params, 'posY', -140, 140).name('Y').onChange(() => { 
 	    currentModel.position.z = (params.posY);
 	});
-	/* SCALE */
+
 	const folderScale = gui.addFolder('Scale');
 	folderScale.add(params, 'scaleX', 0, 300).name('X').onChange(() => { 
 	    currentModel.scale.x = (params.scaleX);
@@ -74,7 +76,7 @@ function addGUI(object) {
 	folderScale.add(params, 'scaleZ', 0, 300).name('Z').onChange(() => { 
 	    currentModel.scale.z = (params.scaleZ);
 	});
-	/* ROTATION */
+
 	const folderRot = gui.addFolder('Rotation');
 	folderRot.add(params, 'rotY', -5, 5).name('Y').onChange(() => { 
 	    currentModel.rotation.y = (params.rotY);
@@ -82,12 +84,12 @@ function addGUI(object) {
     folderRot.add(params, 'rotX', -5, 5).name('X').onChange(() => { 
 	    currentModel.rotation.x = (params.rotX);
 	});
-	/* MODELS */
+
 	const folderModel = gui.addFolder('Model');
 	folderModel.add(params, 'model').name('Load your model');
 	folderModel.add(params, 'sample').name('Samples');
 	folderModel.add(params, 'remove').name('Remove model');
-	/* MODE */
+
 	const folderMode = gui.addFolder('Mode');
 	folderMode.add(params, 'normal').name('Interactive');
 	folderMode.add(params, 'showroom').name('Showroom');
