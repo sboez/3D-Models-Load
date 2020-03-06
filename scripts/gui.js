@@ -59,6 +59,17 @@ function addGUI(object) {
 			currentModel.position.set(0, 0, 0);
 			currentModel.scale.set(100, 100, 100);
 			currentModel.rotation.set(0, 0, 0);
+		},
+		scaleUp: function() {
+			currentModel.scale.x += 1;
+			currentModel.scale.y += 1;
+			currentModel.scale.z += 1;
+		},
+		scaleDown: function() {
+			currentModel.scale.x -= 1;
+			currentModel.scale.y -= 1;
+			currentModel.scale.z -= 1;
+			errorScale(params);
 		}
 	}
 	setGUI(params);
@@ -85,15 +96,17 @@ function setPosition(params) {
 
 function setScale(params) {
 	const folderScale = gui.addFolder('Scale');
-	folderScale.add(params, 'scaleX', 0, 300).name('X').onChange(() => { 
+	folderScale.add(params, 'scaleX', -500, 500).name('X').onChange(() => { 
 	    currentModel.scale.x = (params.scaleX);
 	});
-	folderScale.add(params, 'scaleY', 0, 300).name('Y').onChange(() => { 
+	folderScale.add(params, 'scaleY', -500, 500).name('Y').onChange(() => { 
 	    currentModel.scale.y = (params.scaleY);
 	});
-	folderScale.add(params, 'scaleZ', 0, 300).name('Z').onChange(() => { 
+	folderScale.add(params, 'scaleZ', -500, 500).name('Z').onChange(() => { 
 	    currentModel.scale.z = (params.scaleZ);
 	});
+	folderScale.add(params, 'scaleUp').name('+');
+	folderScale.add(params, 'scaleDown').name('-');
 }
 
 function setRotation(params) {
