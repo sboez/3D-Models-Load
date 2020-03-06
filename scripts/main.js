@@ -1,4 +1,4 @@
-let container, object, currentModel, Scene;
+let container, object, currentModel, Scene, rotateOn = false;
 
 function letsPlay() {
 	init();
@@ -44,6 +44,7 @@ function onDocumentKeyDown(event) {
 function animate() {
 	requestAnimationFrame(animate);
 	Scene.renderer.render(Scene.scene, Scene.camera);
+	rotateModel();
 }
 
 letsPlay();

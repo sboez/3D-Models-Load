@@ -15,6 +15,23 @@ function addGUI(object) {
 	    rotY   : 0,
 	    rotX   : 0,
 	    color  : 0xffffff,
+	    mode   : false,
+	    turn   : false,
+		model: function() {
+			const input = document.createElement('input');
+			input.type = 'file';
+		    input.click();
+			input.onchange = e => { 
+			    this.remove();
+				const file = e.target.files[0];
+				loadFile(file, object);
+			}
+		},
+		sample: function() {
+		},
+		remove: function() {
+			Scene.scene.remove(currentModel);
+		},
 	    normal: function() {
 	    	Scene.scene.background = new THREE.Color(0xa0a0a0);
 	    	Scene.light.visible = true;
@@ -24,34 +41,24 @@ function addGUI(object) {
 			Scene.spotLight_front.visible = false;
 	    },
 		showroom: function() {
-			Scene.scene.background = new THREE.Color(0x000000);
-			Scene.light.visible = false;
-			Scene.spotLight_left.visible = true;
-			Scene.spotLight_right.visible = true;
-			Scene.spotLight_back.visible = true;
-			Scene.spotLight_front.visible = true;
+			if (this.mode === false) this.normal();
+			else {
+				Scene.scene.background = new THREE.Color(0x000000);
+				Scene.light.visible = false;
+				Scene.spotLight_left.visible = true;
+				Scene.spotLight_right.visible = true;
+				Scene.spotLight_back.visible = true;
+				Scene.spotLight_front.visible = true;
+			}
+		},
+		rotate: function() {
+			gui.__folders['Mode'].__controllers[1].__checkbox.checked ? rotateOn = true : rotateOn = false;
 		},
 		reset: function() {
 			this.normal();
 			currentModel.position.set(0, 0, 0);
 			currentModel.scale.set(100, 100, 100);
 			currentModel.rotation.set(0, 0, 0);
-		},
-		model: function() {
-			const input = document.createElement('input');
-			input.type = 'file';
-		    input.click();
-			input.onchange = e => { 
-			    Scene.scene.remove(currentModel);
-				const file = e.target.files[0];
-				loadFile(file, object);
-			}
-		},
-		sample: function() {
-			
-		},
-		remove: function() {
-			Scene.scene.remove(currentModel);
 		}
 	}
 	setGUI(params);
@@ -109,8 +116,12 @@ function setModel(params) {
 
 function setMode(params) {
 	const folderMode = gui.addFolder('Mode');
-	folderMode.add(params, 'normal').name('Interactive');
-	folderMode.add(params, 'showroom').name('Showroom');
+	folderMode.add(params, 'mode').name('Showroom').onChange(() => {
+		params.showroom();
+	});
+	folderMode.add(params, 'turn').name('Rotate').onChange(() => {
+		params.rotate();
+	});;
 	folderMode.addColor(params, 'color').name('Color').onChange(() => { 
 	    Scene.spotLight_left.color.set(params.color);
 	    Scene.spotLight_right.color.set(params.color);
