@@ -11,7 +11,7 @@ class SceneInit {
 		this.spotLight_back = spotLight_back;;
 	}
 	createScene() {
-        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100000);
         this.camera.position.set(250, 180, 280);
 
 		this.scene = new THREE.Scene();

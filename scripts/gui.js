@@ -1,12 +1,5 @@
 let gui = new dat.GUI();
 
-const sampleModels = {
-  "samples": {
-    "street_car": "assets/models/gltf/street_car.glb",
-    "motorbike": "assets/models/gltf/motorbike.glb"
-  }
-};
-
 function addGUI(object) {
 	const params = {
 		posX   : 0,
@@ -82,7 +75,7 @@ function setGUI(params) {
 	setRotation(params);
 	setModel(params);
 	setMode(params);
-	gui.add(params, 'reset');
+	gui.add(params, 'reset').name('Reset');
 }
 
 function setPosition(params) {
@@ -123,7 +116,7 @@ function setRotation(params) {
 function setModel(params) {
 	const folderModel = gui.addFolder('Model');
 	folderModel.add(params, 'model').name('Load your model');
-	folderModel.add(sampleModels, "samples", sampleModels.samples).onChange((value) => {
+	let dropdown = folderModel.add(sampleModels, "samples", sampleModels.samples).onChange((value) => {
 		let path = value;
 		params.remove();
 		loadSample(path);
