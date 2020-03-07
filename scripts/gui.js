@@ -1,9 +1,11 @@
 let gui = new dat.GUI();
 
-let sampleModels = [
-	"assets/models/gltf/street_car.glb",
-	"assets/models/gltf/motorbike.glb"
-]
+const sampleModels = {
+  "samples": {
+    "street_car": "assets/models/gltf/street_car.glb",
+    "motorbike": "assets/models/gltf/motorbike.glb"
+  }
+};
 
 function addGUI(object) {
 	const params = {
@@ -26,8 +28,6 @@ function addGUI(object) {
 				const file = e.target.files[0];
 				loadFile(file, object);
 			}
-		},
-		sample: function() {
 		},
 		remove: function() {
 			Scene.scene.remove(currentModel);
@@ -56,6 +56,7 @@ function addGUI(object) {
 		},
 		reset: function() {
 			this.normal();
+			rotateOn = false;
 			currentModel.position.set(0, 0, 0);
 			currentModel.scale.set(100, 100, 100);
 			currentModel.rotation.set(0, 0, 0);
@@ -122,7 +123,11 @@ function setRotation(params) {
 function setModel(params) {
 	const folderModel = gui.addFolder('Model');
 	folderModel.add(params, 'model').name('Load your model');
-	folderModel.add(params, 'sample').name('Samples');
+	folderModel.add(sampleModels, "samples", sampleModels.samples).onChange((value) => {
+		let path = value;
+		params.remove();
+		loadSample(path);
+	});
 	folderModel.add(params, 'remove').name('Remove model');
 	folderModel.open();
 }
