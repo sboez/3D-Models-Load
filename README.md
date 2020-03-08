@@ -12,13 +12,14 @@ Enjoy [live demo](https://sboez.github.io/3D-Models-Load/) or type `python -m Si
 
 **.STL .DAE .FBX .GLTF .GLB**
 
+
 ## Textures
 
-Only FBX and GLB files can show you the model with a texture. 
-Others needed to add texture manually, that's why I added a grey color by default. But you can still change the path of the texture in the code, follow the procedure explained in the comments.
+Only **.GLB** can show you the model with a texture because it's a binary file who contains images. It's also possible with **.FBX**, with Blender you need to check *copy* in *Path Mode* during export.
+Others need to add texture manually. But you can still change the path of the texture in the code, follow the procedure explained in the comments.
 
-## Work in progress...
+## Samples 
 
-###### I'm using Blender to export my FBX file to a GLB. To add a texture on your FBX model with Blender, you need to check *copy* in *Path Mode* during export.
+My samples models are lightweight **.GLB**
 
 [<img width="700" alt="Capture d’écran 2020-03-06 à 14 45 33" src="https://user-images.githubusercontent.com/23494780/76089010-42a63a00-5fb9-11ea-9d70-ae4ffe9a443c.png">](https://sboez.github.io/3D-Models-Load/)

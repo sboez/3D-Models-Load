@@ -1,4 +1,4 @@
-let container, object, currentModel, Scene, rotateOn = false;
+let container, object, currentModel, Scene, Showroom, rotateOn = false;
 
 function letsPlay() {
 	init();
@@ -12,8 +12,8 @@ async function init() {
 	window.addEventListener('resize', onWindowResize, false);
 
 	Scene = new SceneInit();
+	Showroom = new ShowroomInit();
 	Scene.createScene();
-	Scene.createShowroomLights()
 	Scene.createRenderer();
 
 	container.appendChild(Scene.renderer.domElement);

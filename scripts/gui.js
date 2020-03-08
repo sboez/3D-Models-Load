@@ -2,16 +2,17 @@ let gui = new dat.GUI();
 
 function addGUI(object) {
 	const params = {
-		posX   : 0,
-	    posY   : 0,
-	    scaleX : 0,
-	    scaleY : 0,
-	    scaleZ : 0,
-	    rotY   : 0,
-	    rotX   : 0,
-	    color  : 0xffffff,
-	    mode   : false,
-	    turn   : false,
+		posX: 0,
+	    posY: 0,
+	    scaleX: 0,
+	    scaleY: 0,
+	    scaleZ: 0,
+	    rotY: 0,
+	    rotX: 0,
+	    intens: 1,
+	    color: 0xffffff,
+	    mode: false,
+	    turn: false,
 		model: function() {
 			const input = document.createElement('input');
 			input.type = 'file';
@@ -28,20 +29,14 @@ function addGUI(object) {
 	    normal: function() {
 	    	Scene.scene.background = new THREE.Color(0xa0a0a0);
 	    	Scene.light.visible = true;
-	    	Scene.spotLight_left.visible = false;
-			Scene.spotLight_right.visible = false;
-			Scene.spotLight_back.visible = false;
-			Scene.spotLight_front.visible = false;
+	    	Showroom.isOff();
 	    },
 		showroom: function() {
 			if (this.mode === false) this.normal();
 			else {
 				Scene.scene.background = new THREE.Color(0x000000);
 				Scene.light.visible = false;
-				Scene.spotLight_left.visible = true;
-				Scene.spotLight_right.visible = true;
-				Scene.spotLight_back.visible = true;
-				Scene.spotLight_front.visible = true;
+				Showroom.isOn();
 			}
 		},
 		rotate: function() {
@@ -49,6 +44,8 @@ function addGUI(object) {
 		},
 		reset: function() {
 			this.normal();
+	    	Showroom.setPos();
+	    	Showroom.setColor();
 			rotateOn = false;
 			currentModel.position.set(0, 0, 0);
 			currentModel.scale.set(100, 100, 100);
@@ -64,6 +61,12 @@ function addGUI(object) {
 			currentModel.scale.y -= 1;
 			currentModel.scale.z -= 1;
 			errorScale(params);
+		},
+		randomPos: function() {
+			Showroom.randomPos();
+		},
+		randomColor: function() {
+			Showroom.randomColor();
 		}
 	}
 	setGUI(params);
@@ -132,11 +135,19 @@ function setMode(params) {
 	});
 	folderMode.add(params, 'turn').name('Rotate').onChange(() => {
 		params.rotate();
-	});;
-	folderMode.addColor(params, 'color').name('Color').onChange(() => { 
-	    Scene.spotLight_left.color.set(params.color);
-	    Scene.spotLight_right.color.set(params.color);
-	    Scene.spotLight_front.color.set(params.color);
-	    Scene.spotLight_back.color.set(params.color);
 	});
+	folderMode.addColor(params, 'color').name('Color').onChange(() => { 
+	    Showroom.spotLight_left.color.set(params.color);
+	    Showroom.spotLight_right.color.set(params.color);
+	    Showroom.spotLight_front.color.set(params.color);
+	    Showroom.spotLight_back.color.set(params.color);
+	});
+	folderMode.add(params, 'intens', 0, 10).name('Intensity').onChange(() => {
+		Showroom.spotLight_left.intensity = params.intens;
+		Showroom.spotLight_right.intensity = params.intens;
+		Showroom.spotLight_front.intensity = params.intens;
+		Showroom.spotLight_back.intensity = params.intens;
+	});
+	folderMode.add(params, 'randomPos').name('Random Position');
+	folderMode.add(params, 'randomColor').name('Random Color');
 }
