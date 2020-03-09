@@ -8,7 +8,7 @@ function addGUI(object) {
 	    scaleY: 0,
 	    scaleZ: 0,
 	    rotY: 0,
-	    rotX: 0,
+	    rotX: 0, 
 	    intens: 1,
 	    color: 0xffffff,
 	    mode: false,
@@ -17,10 +17,10 @@ function addGUI(object) {
 			const input = document.createElement('input');
 			input.type = 'file';
 		    input.click();
-			input.onchange = e => { 
+			input.onchange = e => {
 			    this.remove();
 				const file = e.target.files[0];
-				loadFile(file, object);
+				Load.loadFile(file, object);
 			}
 		},
 		remove: function() {
@@ -122,7 +122,7 @@ function setModel(params) {
 	let dropdown = folderModel.add(sampleModels, "samples", sampleModels.samples).onChange((value) => {
 		let path = value;
 		params.remove();
-		loadSample(path);
+		Load.loadSample(path);
 	});
 	folderModel.add(params, 'remove').name('Remove model');
 	folderModel.open();
@@ -137,16 +137,14 @@ function setMode(params) {
 		params.rotate();
 	});
 	folderMode.addColor(params, 'color').name('Color').onChange(() => { 
-	    Showroom.spotLight_left.color.set(params.color);
-	    Showroom.spotLight_right.color.set(params.color);
-	    Showroom.spotLight_front.color.set(params.color);
-	    Showroom.spotLight_back.color.set(params.color);
+		for (let i = 0; i < Showroom.spots.length; i++) {
+			Showroom.spots[i].color.set(params.color);
+		}
 	});
 	folderMode.add(params, 'intens', 0, 10).name('Intensity').onChange(() => {
-		Showroom.spotLight_left.intensity = params.intens;
-		Showroom.spotLight_right.intensity = params.intens;
-		Showroom.spotLight_front.intensity = params.intens;
-		Showroom.spotLight_back.intensity = params.intens;
+		for (let i = 0; i < Showroom.spots.length; i++) {
+			Showroom.spots[i].intensity = params.intens;
+		}
 	});
 	folderMode.add(params, 'randomPos').name('Random Position');
 	folderMode.add(params, 'randomColor').name('Random Color');

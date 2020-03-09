@@ -9,7 +9,7 @@ const sampleModels = {
 };
 
 function errorMessage(filename, error) {
-	alert("Your file " + filename + " was not parsed correctly." + "\n\n" + "ERROR MESSAGE : " + error.message);
+	alert("Your file " + Load.filename + " was not parsed correctly." + "\n\n" + "ERROR MESSAGE : " + error.message);
 }
 
 function errorScale(params) {
