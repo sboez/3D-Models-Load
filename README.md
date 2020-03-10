@@ -1,6 +1,6 @@
 # 3D-Models-Load
 
-![GitHub top language](https://img.shields.io/github/languages/top/sboez/3D-Models-Load) ![GitHub last commit](https://img.shields.io/github/last-commit/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/badge/completion-90%25-blueviolet)
+![GitHub top language](https://img.shields.io/github/languages/top/sboez/3D-Models-Load) ![GitHub last commit](https://img.shields.io/github/last-commit/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/badge/completion-100%25-blueviolet)
 
 Load your 3D model easily in a Three.js scene and enjoy Showroom mode.
 
@@ -15,7 +15,7 @@ Enjoy [live demo](https://sboez.github.io/3D-Models-Load/) or type `python -m Si
 ## Textures
 
 Only **.GLB** can show you the model with a texture because it's a binary file who contains images. It's also possible with **.FBX**, with Blender you need to check *copy* in *Path Mode* during export.
-Others need to add texture manually. But you can still change the path of the texture in the code, follow the procedure explained in the comments.
+Others need to add texture manually. But you can still change the texture path in the code, follow the procedure explained in the comments.
 
 ## Samples
 

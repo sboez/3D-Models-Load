@@ -123,9 +123,6 @@ class LoadInit {
 	        catch (error) {
 	        	errorMessage(this.filename, error);
 	        }
-	         object.traverse(function (child) {
-	            if (child.isMesh) child.material = this.material;
-	        });
 	        currentModel = object;
 			currentModel.scale.multiplyScalar(100);
 			Scene.scene.add(object);

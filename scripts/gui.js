@@ -40,7 +40,7 @@ function addGUI(object) {
 			}
 		},
 		rotate: function() {
-			gui.__folders['Mode'].__controllers[1].__checkbox.checked ? rotateOn = true : rotateOn = false;
+			this.turn == true ? rotateOn = true : rotateOn = false;
 		},
 		reset: function() {
 			this.normal();
@@ -119,7 +119,7 @@ function setRotation(params) {
 function setModel(params) {
 	const folderModel = gui.addFolder('Model');
 	folderModel.add(params, 'model').name('Load your model');
-	let dropdown = folderModel.add(sampleModels, "samples", sampleModels.samples).onChange((value) => {
+	let dropdown = folderModel.add(sampleModels, 'samples', sampleModels.samples).onChange((value) => {
 		let path = value;
 		params.remove();
 		Load.loadSample(path);
