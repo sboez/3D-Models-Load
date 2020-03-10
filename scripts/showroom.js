@@ -9,15 +9,15 @@ class ShowroomInit extends SceneInit {
 		];		
 	}
 	createLights() {
-		for (let i = 0; i < this.spots.length; i++) {
+		for (let i = 0; i < this.spots.length; ++i) {
 			this.spots[i] = new THREE.SpotLight();
 			Scene.scene.add(this.spots[i]);
 		}
 		this.setPos();
-		this.isOff();
+		this.turnOff();
 	}
 	setColor() {
-		for (let i = 0; i < this.spots.length; i++) {
+		for (let i = 0; i < this.spots.length; ++i) {
 			this.spots[i].color.set(0xffffff);
 		}
 	}
@@ -27,31 +27,30 @@ class ShowroomInit extends SceneInit {
 		this.spots[2].position.set(0, 10, -150);
 		this.spots[3].position.set(0, 70, 150);
 	}
-	isOn() {
-		for (let i = 0; i < this.spots.length; i++) {
+	turnOn() {
+		for (let i = 0; i < this.spots.length; ++i) {
 			this.spots[i].visible = true;
 		}
 	}
-	isOff() {
-		for (let i = 0; i < this.spots.length; i++) {
+	turnOff() {
+		for (let i = 0; i < this.spots.length; ++i) {
 			this.spots[i].visible = false;
 		}
 	}
 	randomPos() {
 		let r = [];
-	    for(let i = 0; i < 4; i++){
+	    for(let i = 0; i < 4; ++i){
 	   		r.push(Math.floor(Math.random() * 110));
-	    }
+	   	}
 		this.spots[0].position.set(r[0], r[1], r[2]);
 		this.spots[1].position.set(r[1], r[0], r[2]);
 		this.spots[2].position.set(r[2], r[1], r[0]);
 		this.spots[3].position.set(r[0], r[2], r[1]);
 	}
 	randomColor() {
-	    let c = [];
-	    for(let i = 0; i < 4; i++){
-	   		c.push('#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6));
-	   		this.spots[i].color.set(c[i]);
+	    for(let i = 0; i < 4; ++i){
+	    	const color = ('#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6));
+	   		this.spots[i].color.set(color);
 	    }
 	}
 }

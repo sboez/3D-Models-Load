@@ -1,9 +1,11 @@
+/*** If you want to add a texture for your .OBJ or .DAE model, you need to add
+this lines in the same way of material and change path.
+
+const textureLoader = new THREE.TextureLoader();
+const texture = textureLoader.load('assets/texture/image_0.png');
+if (child.isMesh) child.material.map = texture; ***/
+
 class LoadInit {
-	constructor(file, filename, object) {
-		this.file = file;
-		this.filename = filename;
-		this.object = object;
-	}
 	loadFile(file, filename) {
 		this.filename = file.name;
 		this.extension = this.filename.split('.').pop().toLowerCase();
@@ -78,11 +80,11 @@ class LoadInit {
 			try {
 				geometry = new THREE.STLLoader().parse(contents);
 			}
-	        catch (error) {
+			catch (error) {
 	        	errorMessage(this.filename, error);
 	        }
-	        object = new THREE.Mesh(geometry, this.material);
-	        object.traverse(function(child) {
+			object = new THREE.Mesh(geometry, this.material);
+			object.traverse(function(child) {
 				object.rotation.set(-Math.PI / 2, -Math.PI * 2, 0);
 		    	currentModel = object;
 		    	currentModel.scale.multiplyScalar(100);
@@ -104,7 +106,7 @@ class LoadInit {
 	            	errorMessage(this.filename, error);
 	            }
 	            object = collada.scene;
-	            for (var i = 0; i < object.children[0].children.length; i++) {
+	            for (var i = 0; i < object.children[0].children.length; ++i) {
 			    	object.children[0].children[i].material = this.material;
 			    }
 	            currentModel = object;

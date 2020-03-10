@@ -29,14 +29,14 @@ function addGUI(object) {
 	    normal: function() {
 	    	Scene.scene.background = new THREE.Color(0xa0a0a0);
 	    	Scene.light.visible = true;
-	    	Showroom.isOff();
+	    	Showroom.turnOff();
 	    },
 		showroom: function() {
 			if (this.mode === false) this.normal();
 			else {
 				Scene.scene.background = new THREE.Color(0x000000);
 				Scene.light.visible = false;
-				Showroom.isOn();
+				Showroom.turnOn();
 			}
 		},
 		rotate: function() {
@@ -137,12 +137,12 @@ function setMode(params) {
 		params.rotate();
 	});
 	folderMode.addColor(params, 'color').name('Color').onChange(() => { 
-		for (let i = 0; i < Showroom.spots.length; i++) {
+		for (let i = 0; i < Showroom.spots.length; ++i) {
 			Showroom.spots[i].color.set(params.color);
 		}
 	});
 	folderMode.add(params, 'intens', 0, 10).name('Intensity').onChange(() => {
-		for (let i = 0; i < Showroom.spots.length; i++) {
+		for (let i = 0; i < Showroom.spots.length; ++i) {
 			Showroom.spots[i].intensity = params.intens;
 		}
 	});

@@ -1,14 +1,7 @@
 class SceneInit {
-	constructor(camera, scene, plane, renderer, light) {
-		this.camera = camera;
-		this.scene = scene;
-		this.plane = plane;
-		this.renderer = renderer;
-		this.light = light;
-	}
 	createScene() {
-        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100000);
-        this.camera.position.set(250, 180, 280);
+		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100000);
+		this.camera.position.set(250, 180, 280);
 
 		this.scene = new THREE.Scene();
 		this.scene.background = new THREE.Color(0xa0a0a0);
