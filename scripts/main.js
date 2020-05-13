@@ -19,8 +19,7 @@ async function init() {
 
 	container.appendChild(Scene.renderer.domElement);
 
-	let controls = new THREE.OrbitControls(Scene.camera, Scene.renderer.domElement);
-	controls.update();
+	Scene.createControls();
 
 	await Load.loadSample('assets/models/gltf/street_car.glb');
 	addGUI(currentModel);

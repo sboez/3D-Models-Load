@@ -28,6 +28,7 @@ function addGUI(object) {
 		},
 	    normal: function() {
 	    	Scene.scene.background = new THREE.Color(0xa0a0a0);
+	    	Scene.hemLight.visible = true;
 	    	Scene.light.visible = true;
 	    	Showroom.turnOff();
 	    },
@@ -35,6 +36,7 @@ function addGUI(object) {
 			if (this.mode === false) this.normal();
 			else {
 				Scene.scene.background = new THREE.Color(0x000000);
+				Scene.hemLight.visible = false;
 				Scene.light.visible = false;
 				Showroom.turnOn();
 			}

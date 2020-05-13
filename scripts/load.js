@@ -29,6 +29,7 @@ class LoadInit {
 				break;
 		}
 	}
+
 	loadGltf(file, filename) {
 		reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
@@ -52,6 +53,7 @@ class LoadInit {
 		}
 		reader.readAsArrayBuffer(file);
 	}
+
 	loadFbx(file, filename, object) {
 		reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
@@ -73,6 +75,7 @@ class LoadInit {
 		}
 		reader.readAsArrayBuffer(file);
 	}
+
 	loadStl(file, filename, object) {
 		reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
@@ -94,6 +97,7 @@ class LoadInit {
 		if (reader.readAsBinaryString !== undefined) reader.readAsBinaryString(file);
 	    else reader.readAsArrayBuffer(file);
 	}
+
 	loadDae(file, filename, object) {
 		reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
@@ -115,6 +119,7 @@ class LoadInit {
 		}	
 		reader.readAsText(file);
 	}
+
 	loadObj(file, filename, object) {
 		reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
@@ -131,6 +136,7 @@ class LoadInit {
 		}
 		reader.readAsText(file);
 	}
+	
 	loadSample(path) {
 		return new Promise((resolve) => {
 			const loader = new THREE.GLTFLoader();
