@@ -4,6 +4,7 @@ function addGUI(object) {
 	const params = {
 		posX: 0,
 	    posY: 0,
+	    posZ: 0,
 	    scaleX: 0,
 	    scaleY: 0,
 	    scaleZ: 0,
@@ -90,6 +91,9 @@ function setPosition(params) {
 	});
 	folderPos.add(params, 'posY', -140, 140).name('Y').onChange(() => { 
 	    currentModel.position.z = (params.posY);
+	});
+	folderPos.add(params, 'posZ', -140, 140).name('Z').onChange(() => { 
+	    currentModel.position.y = (params.posZ);
 	});
 }
 
