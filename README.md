@@ -6,7 +6,7 @@ Load your 3D model easily in a Three.js scene and enjoy Showroom mode.
 
 ## Usage
 
-Enjoy [live demo](https://sboez.github.io/3D-Models-Load/) or run locally :
+Enjoy [live demo](https://modelsload.web.app/) or run locally :
 
 ```shell
 git clone https://github.com/sboez/3D-Models-Load.git
