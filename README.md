@@ -1,6 +1,6 @@
 # 3D-Models-Load
 
-![GitHub top language](https://img.shields.io/github/languages/top/sboez/3D-Models-Load) <img src="https://img.shields.io/badge/three.js-r132-orange"> ![GitHub](https://img.shields.io/github/license/sboez/3D-Models-Load) ![GitHub deployments](https://img.shields.io/github/deployments/sboez/3D-Models-Load/github-pages)
+![GitHub stars](https://img.shields.io/github/stars/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/github/license/sboez/3D-Models-Load) <img src="https://img.shields.io/badge/three.js-r132-orange"> <img src="https://img.shields.io/badge/hosting-Firebase-yellow">
 
 Load your 3D model easily in a Three.js scene and enjoy Showroom mode.
 
