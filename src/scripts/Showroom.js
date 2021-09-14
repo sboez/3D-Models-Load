@@ -1,18 +1,23 @@
-class ShowroomInit extends SceneInit {
-	constructor(spots, spot_left, spot_right, spot_back, spot_front) {
-		super();
+import * as THREE from 'three';
+
+export default class Showroom {
+	constructor(scene, spot_left, spot_right, spot_back, spot_front) {
+		this.scene = scene;
+
 		this.spots = [
 			this.spot_left = spot_left,
 			this.spot_right = spot_right,
 			this.spot_back = spot_back,
 			this.spot_front = spot_front
-		];		
+		];
+
+		this.setLights();
 	}
-	
-	createLights() {
+
+	setLights() {
 		for (let i = 0; i < this.spots.length; ++i) {
 			this.spots[i] = new THREE.SpotLight();
-			Scene.scene.add(this.spots[i]);
+			this.scene.add(this.spots[i]);
 		}
 		this.setPos();
 		this.turnOff();
@@ -45,9 +50,9 @@ class ShowroomInit extends SceneInit {
 
 	randomPos() {
 		let r = [];
-	    for(let i = 0; i < 4; ++i){
-	   		r.push(Math.floor(Math.random() * 110));
-	   	}
+		for (let i = 0; i < 4; ++i) {
+			r.push(Math.floor(Math.random() * 110));
+		}
 		this.spots[0].position.set(r[0], r[1], r[2]);
 		this.spots[1].position.set(r[1], r[0], r[2]);
 		this.spots[2].position.set(r[2], r[1], r[0]);
@@ -55,9 +60,9 @@ class ShowroomInit extends SceneInit {
 	}
 
 	randomColor() {
-	    for(let i = 0; i < 4; ++i){
-	    	const color = ('#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6));
-	   		this.spots[i].color.set(color);
-	    }
+		for (let i = 0; i < 4; ++i) {
+			const color = ('#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6));
+			this.spots[i].color.set(color);
+		}
 	}
 }
