@@ -17,6 +17,7 @@ export default class Gui {
          posX: 0,
          posY: 0,
          posZ: 0,
+         scale: 0,
          scaleX: 0,
          scaleY: 0,
          scaleZ: 0,
@@ -47,17 +48,6 @@ export default class Gui {
             this.load.currentModel.position.set(0, 0, 0);
             this.load.currentModel.scale.set(40, 40, 40);
             this.load.currentModel.rotation.set(0, 0, 0);
-         },
-         scaleUp: () => {
-            this.load.currentModel.scale.x += 1;
-            this.load.currentModel.scale.y += 1;
-            this.load.currentModel.scale.z += 1;
-         },
-         scaleDown: () => {
-            this.load.currentModel.scale.x -= 1;
-            this.load.currentModel.scale.y -= 1;
-            this.load.currentModel.scale.z -= 1;
-            this.errorScale(params);
          },
          randomPos: () => {
             this.showroom.randomPos();
@@ -132,6 +122,15 @@ export default class Gui {
    setScale(params) {
       const folderScale = gui.addFolder("Scale");
       folderScale
+         .add(params, "scale", -500, 500)
+         .name("- / +")
+         .onChange(() => {
+            this.load.currentModel.scale.x =
+               this.load.currentModel.scale.y =
+               this.load.currentModel.scale.z =
+                  params.scale;
+         });
+      folderScale
          .add(params, "scaleX", -500, 500)
          .name("X")
          .onChange(() => {
@@ -149,8 +148,6 @@ export default class Gui {
          .onChange(() => {
             this.load.currentModel.scale.z = params.scaleZ;
          });
-      folderScale.add(params, "scaleUp").name("+");
-      folderScale.add(params, "scaleDown").name("-");
    }
 
    setRotation(params) {
@@ -171,7 +168,6 @@ export default class Gui {
 
    setModel(params) {
       const folderModel = gui.addFolder("Model");
-      folderModel.add(params, "model").name("Load your model");
       folderModel
          .add(this.sampleModels, "samples", {
             "Street Car": "./models/gltf/street_car.glb",
@@ -185,6 +181,7 @@ export default class Gui {
             this.remove();
             this.load.loadSample(path);
          });
+      folderModel.add(params, "model").name("Load your model");
       folderModel.add(params, "remove").name("Remove model");
       folderModel.open();
    }
@@ -221,12 +218,5 @@ export default class Gui {
          });
       folderMode.add(params, "randomPos").name("Random Position");
       folderMode.add(params, "randomColor").name("Random Color");
-   }
-
-   errorScale(params) {
-      if (this.load.currentModel.scale.x === 0) {
-         params.reset();
-         alert("Your model has been reseted because its size was egal to zero");
-      }
    }
 }
