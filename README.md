@@ -1,12 +1,12 @@
 # 3D-Models-Load
 
-![GitHub stars](https://img.shields.io/github/stars/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/github/license/sboez/3D-Models-Load) <img src="https://img.shields.io/badge/three.js-r132-orange"> <img src="https://img.shields.io/badge/hosting-Firebase-yellow">
+![GitHub stars](https://img.shields.io/github/stars/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/github/license/sboez/3D-Models-Load) <img src="https://img.shields.io/badge/three.js-r137.5-orange"> <img src=https://img.shields.io/netlify/0ebe41c9-114d-44c6-a8f3-1e9061af7f37>
 
 Load your 3D model easily in a Three.js scene and enjoy Showroom mode.
 
 ## Usage
 
-Enjoy [live demo](https://modelsload.web.app/) or run locally :
+Enjoy [live demo](https://3d-models-load.netlify.app/) or run locally :
 
 ```shell
 git clone https://github.com/sboez/3D-Models-Load.git
