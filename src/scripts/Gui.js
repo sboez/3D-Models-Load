@@ -23,11 +23,12 @@ export default class Gui {
          scaleZ: 0,
          rotY: 0,
          rotX: 0,
-         intens: 1,
+         intens: 3,
          color: 0xffffff,
          mode: false,
          turn: false,
          grid: true,
+         wireframe: false,
          model: () => {
             const input = document.createElement("input");
             input.type = "file";
@@ -96,7 +97,7 @@ export default class Gui {
    }
 
    remove() {
-      this.scene.remove(this.load.currentModel);
+      this.load.clearModel();
    }
 
    normal() {
@@ -217,6 +218,12 @@ export default class Gui {
             this.scene.grid.visible = params.grid;
          });
       folderMode
+         .add(params, "wireframe")
+         .name("Wireframe")
+         .onChange(() => {
+            this.load.setWireframe(params.wireframe);
+         });
+      folderMode
          .add(params, "mode")
          .name("Showroom")
          .onChange(() => {
@@ -237,13 +244,16 @@ export default class Gui {
             }
          });
       folderMode
-         .add(params, "intens", 0, 10)
+         .add(params, "intens", 1, 10)
          .name("Intensity")
          .onChange(() => {
             for (let i = 0; i < this.showroom.spots.length; ++i) {
                this.showroom.spots[i].intensity = params.intens;
             }
          });
+      for (let i = 0; i < this.showroom.spots.length; ++i) {
+         this.showroom.spots[i].intensity = params.intens;
+      }
       folderMode.add(params, "randomPos").name("Random Position");
       folderMode.add(params, "randomColor").name("Random Color");
    }
