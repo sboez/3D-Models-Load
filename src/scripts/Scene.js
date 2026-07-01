@@ -9,19 +9,89 @@ export default class Scene extends THREE.Scene {
 	}
 
 	setScene() {
-		this.background = new THREE.Color(0xa0a0a0);
+		this.defaultBackground = new THREE.Color(0x1e1e22);
+		this.background = this.defaultBackground;
 
-		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-		this.camera.position.set(190, 130, 170);
+		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000000);
+		this.camera.position.set(140, 110, 140);
 
-		this.plane = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshPhongMaterial({ color: 0xcfcfcf, side: THREE.DoubleSide }));
-		this.plane.rotation.x = -Math.PI / 2;
-		this.plane.receiveShadow = true;
-		this.add(this.plane);
-
+		this.setFloor();
+		this.setGrid();
 		this.setLights();
 		this.setRenderer();
 		this.setControls();
+	}
+
+	setFloor() {
+		this.floorAlpha = this.radialAlphaTexture();
+		this.plane = new THREE.Mesh(
+			new THREE.PlaneGeometry(200, 200),
+			new THREE.MeshPhongMaterial({ color: 0xcfcfcf, side: THREE.DoubleSide })
+		);
+		this.plane.rotation.x = -Math.PI / 2;
+		this.plane.receiveShadow = true;
+		this.add(this.plane);
+	}
+
+	setGrid() {
+		this.grid = new THREE.GridHelper(200, 20, 0x444444, 0x888888);
+		this.grid.position.y = 0.01; /* évite le z-fighting avec le sol */
+		this.buildGridColors(this.grid, 100);
+		this.add(this.grid);
+	}
+
+	setGroundStyle(showroom) {
+		if (showroom) {
+			this.plane.material.alphaMap = this.floorAlpha;
+			this.plane.material.transparent = true;
+			this.grid.geometry.setAttribute('color', this.gridColorFaded);
+			this.grid.material.transparent = true;
+		} else {
+			this.plane.material.alphaMap = null;
+			this.plane.material.transparent = false;
+			this.grid.geometry.setAttribute('color', this.gridColorSolid);
+			this.grid.material.transparent = false;
+		}
+		this.plane.material.needsUpdate = true;
+		this.grid.material.needsUpdate = true;
+	}
+
+	radialAlphaTexture() {
+		const size = 512;
+		const canvas = document.createElement('canvas');
+		canvas.width = canvas.height = size;
+		const ctx = canvas.getContext('2d');
+		const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+
+		gradient.addColorStop(0.0, 'rgba(255, 255, 255, 1)');
+		gradient.addColorStop(0.5, 'rgba(255, 255, 255, 1)');
+		gradient.addColorStop(0.82, 'rgba(0, 0, 0, 1)');
+		ctx.fillStyle = gradient;
+		ctx.fillRect(0, 0, size, size);
+		return new THREE.CanvasTexture(canvas);
+	}
+
+	buildGridColors(grid, halfSize) {
+		const position = grid.geometry.attributes.position;
+		const color = grid.geometry.attributes.color;
+		const solid = new Float32Array(position.count * 4);
+		const faded = new Float32Array(position.count * 4);
+		const inner = halfSize * 0.5;
+		const outer = halfSize * 0.82;
+		for (let i = 0; i < position.count; ++i) {
+			const r = color.getX(i);
+			const g = color.getY(i);
+			const b = color.getZ(i);
+			const distance = Math.hypot(position.getX(i), position.getZ(i));
+			let alpha = (outer - distance) / (outer - inner);
+			alpha = Math.min(1, Math.max(0, alpha));
+			solid.set([r, g, b, 1], i * 4);
+			faded.set([r, g, b, alpha * alpha], i * 4);
+		}
+		this.gridColorSolid = new THREE.BufferAttribute(solid, 4);
+		this.gridColorFaded = new THREE.BufferAttribute(faded, 4);
+		grid.material.vertexColors = true;
+		grid.geometry.setAttribute('color', this.gridColorSolid);
 	}
 
 	setLights() {
@@ -32,7 +102,6 @@ export default class Scene extends THREE.Scene {
 		this.light.castShadow = true;
 		this.light.position.set(0, 50, 0)
 
-		/* set up shadow properties for the shadow casting directional light */
 		this.light.shadow.mapSize.width = 1024;
 		this.light.shadow.mapSize.height = 1024;
 		this.light.shadow.camera.near = 0.5;
@@ -54,7 +123,6 @@ export default class Scene extends THREE.Scene {
 	setControls() {
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 		this.controls.maxPolarAngle = Math.PI / 2;
-		this.controls.maxDistance = 2000;
 		this.controls.target = new THREE.Vector3(0, 15, 0);
 		this.controls.update();
 	}

@@ -27,6 +27,7 @@ export default class Gui {
          color: 0xffffff,
          mode: false,
          turn: false,
+         grid: true,
          model: () => {
             const input = document.createElement("input");
             input.type = "file";
@@ -45,9 +46,16 @@ export default class Gui {
             this.showroom.setPos();
             this.showroom.setColor();
             this.rotateOn = false;
-            this.load.currentModel.position.set(0, 0, 0);
-            this.load.currentModel.scale.set(40, 40, 40);
-            this.load.currentModel.rotation.set(0, 0, 0);
+            const model = this.load.currentModel;
+            const home = model.userData.home;
+            if (home) {
+               model.position.copy(home.position);
+               model.scale.copy(home.scale);
+            } else {
+               model.position.set(0, 0, 0);
+               model.scale.set(1, 1, 1);
+            }
+            model.rotation.set(0, 0, 0);
          },
          randomPos: () => {
             this.showroom.randomPos();
@@ -65,6 +73,7 @@ export default class Gui {
          this.scene.background = new THREE.Color(0x000000);
          this.scene.hemLight.visible = false;
          this.scene.light.visible = false;
+         this.scene.setGroundStyle(true);
          this.showroom.turnOn();
       }
    }
@@ -82,9 +91,10 @@ export default class Gui {
    }
 
    normal() {
-      this.scene.background = new THREE.Color(0xa0a0a0);
+      this.scene.background = this.scene.defaultBackground;
       this.scene.hemLight.visible = true;
       this.scene.light.visible = true;
+      this.scene.setGroundStyle(false);
       this.showroom.turnOff();
    }
 
@@ -188,6 +198,12 @@ export default class Gui {
 
    setMode(params) {
       const folderMode = gui.addFolder("Mode");
+      folderMode
+         .add(params, "grid")
+         .name("Grid")
+         .onChange(() => {
+            this.scene.grid.visible = params.grid;
+         });
       folderMode
          .add(params, "mode")
          .name("Showroom")
