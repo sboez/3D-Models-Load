@@ -41,6 +41,15 @@ export default class Gui {
          remove: () => {
             this.remove();
          },
+         rotX90: () => {
+            this.load.rotateBy90("x");
+         },
+         rotY90: () => {
+            this.load.rotateBy90("y");
+         },
+         rotZ90: () => {
+            this.load.rotateBy90("z");
+         },
          reset: () => {
             this.normal();
             this.showroom.setPos();
@@ -174,6 +183,9 @@ export default class Gui {
          .onChange(() => {
             this.load.currentModel.rotation.x = params.rotX;
          });
+      folderRot.add(params, "rotX90").name("↻ 90° X");
+      folderRot.add(params, "rotY90").name("↻ 90° Y");
+      folderRot.add(params, "rotZ90").name("↻ 90° Z");
    }
 
    setModel(params) {

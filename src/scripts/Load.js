@@ -95,6 +95,17 @@ export default class Load {
 		return pivot;
 	}
 
+	rotateBy90(axis) {
+		if (!this.currentModel) return;
+		this.currentModel.rotation[axis] += Math.PI / 2;
+		this.groundModel(this.currentModel);
+	}
+
+	groundModel(model) {
+		const box = new THREE.Box3().setFromObject(model);
+		model.position.y -= box.min.y;
+	}
+
 	loadGltf(file, object) {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
@@ -190,7 +201,9 @@ export default class Load {
 				return;
 			}
 			geometry.computeVertexNormals();
-			this.frameModel(new THREE.Mesh(geometry, this.material));
+			const object = new THREE.Mesh(geometry, this.material);
+			object.rotation.set(-Math.PI / 2, 0, 0);
+			this.frameModel(object);
 		}
 		this.reader.readAsArrayBuffer(file);
 	}
