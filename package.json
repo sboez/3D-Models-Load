@@ -1,11 +1,12 @@
 {
-   "name": "3D-Models-Load",
-   "version": "2.1.0",
-   "description": "",
-   "main": "main.js",
+   "name": "3d-models-load",
+   "version": "3.0.0",
+   "description": "3D asset QA viewer — drag & drop, stats, animations, GLB export",
+   "type": "module",
    "scripts": {
-      "dev": "webpack serve --config ./bundler/webpack.dev.js",
-      "build": "webpack --config ./bundler/webpack.prod.js"
+      "dev": "vite",
+      "build": "vite build",
+      "preview": "vite preview"
    },
    "repository": {
       "type": "git",
@@ -18,22 +19,10 @@
    },
    "homepage": "https://github.com/sboez/3D-Models-Load#readme",
    "dependencies": {
-      "@babel/core": "^7.15.5",
-      "@babel/preset-env": "^7.15.6",
-      "babel-loader": "^8.2.2",
-      "lil-gui": "^0.16.0",
-      "three": "^0.137.5"
+      "lil-gui": "^0.21.0",
+      "three": "^0.185.0"
    },
    "devDependencies": {
-      "clean-webpack-plugin": "^4.0.0",
-      "copy-webpack-plugin": "^9.0.1",
-      "file-loader": "^6.2.0",
-      "html-loader": "^2.1.2",
-      "html-webpack-plugin": "^5.3.2",
-      "portfinder-sync": "0.0.2",
-      "webpack": "^5.52.1",
-      "webpack-cli": "^4.8.0",
-      "webpack-dev-server": "^4.1.1",
-      "webpack-merge": "^5.7.3"
+      "vite": "^8.1.2"
    }
 }

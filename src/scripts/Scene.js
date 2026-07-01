@@ -14,7 +14,7 @@ export default class Scene extends THREE.Scene {
 		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
 		this.camera.position.set(190, 130, 170);
 
-		this.plane = new THREE.Mesh(new THREE.PlaneBufferGeometry(200, 200), new THREE.MeshPhongMaterial({ color: 0xcfcfcf, side: THREE.DoubleSide }));
+		this.plane = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshPhongMaterial({ color: 0xcfcfcf, side: THREE.DoubleSide }));
 		this.plane.rotation.x = -Math.PI / 2;
 		this.plane.receiveShadow = true;
 		this.add(this.plane);
@@ -25,10 +25,10 @@ export default class Scene extends THREE.Scene {
 	}
 
 	setLights() {
-		this.hemLight = new THREE.HemisphereLight(0xffffff, 0x404040, 1);
+		this.hemLight = new THREE.HemisphereLight(0xffffff, 0x404040, 2);
 		this.add(this.hemLight);
 
-		this.light = new THREE.DirectionalLight(0xffffff, .1);
+		this.light = new THREE.DirectionalLight(0xffffff, 2.5);
 		this.light.castShadow = true;
 		this.light.position.set(0, 50, 0)
 
@@ -47,6 +47,7 @@ export default class Scene extends THREE.Scene {
 	setRenderer() {
 		this.renderer = new THREE.WebGLRenderer({ antialias: true });
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
+		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 		this.renderer.shadowMap.enabled = true;
 	}
 

@@ -17,6 +17,7 @@ export default class Showroom {
 	setLights() {
 		for (let i = 0; i < this.spots.length; ++i) {
 			this.spots[i] = new THREE.SpotLight();
+			this.spots[i].decay = 0;
 			this.scene.add(this.spots[i]);
 		}
 		this.setPos();
