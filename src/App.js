@@ -2,6 +2,7 @@ import Scene from './scripts/Scene';
 import Load from './scripts/Load';
 import Showroom from './scripts/Showroom';
 import Gui from './scripts/Gui';
+import DragDrop from './scripts/DragDrop';
 
 class App {
 	constructor() {
@@ -9,6 +10,7 @@ class App {
 		this.load = null;
 		this.showroom = null;
 		this.gui = null;
+		this.dragDrop = null;
 
 		this.letsPlay();
 	}
@@ -18,6 +20,7 @@ class App {
 		this.load = new Load(this.scene, this.currentModel);
 		this.showroom = new Showroom(this.scene);
 		this.gui = new Gui(this.scene, this.load, this.showroom);
+		this.dragDrop = new DragDrop(this.load);
 
 		await this.load.loadSample('./models/gltf/street_car.glb');
 		this.gui.addGUI(this.load.currentModel);
