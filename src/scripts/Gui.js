@@ -32,11 +32,11 @@ export default class Gui {
          model: () => {
             const input = document.createElement("input");
             input.type = "file";
+            input.multiple = true;
             input.click();
             input.onchange = (e) => {
                this.remove();
-               const file = e.target.files[0];
-               this.load.loadFile(file, object);
+               this.load.loadFiles(e.target.files);
             };
          },
          remove: () => {

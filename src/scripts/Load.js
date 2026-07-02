@@ -3,6 +3,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { ColladaLoader } from 'three/examples/jsm/loaders/ColladaLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader';
 import Spinner from './Spinner';
@@ -25,6 +26,40 @@ export default class Load {
 		this.spinner = new Spinner();
 		this.infoPanel = new InfoPanel();
 		this.wireframe = false;
+		this.resources = new Map();
+		this.resourcesLower = new Map();
+		this.manager = new THREE.LoadingManager();
+		this.manager.setURLModifier(url => {
+			if (url.startsWith('data:')) return url;
+			const name = decodeURIComponent(url.split('/').pop().split('\\').pop());
+			return this.resources.get(name) || this.resourcesLower.get(name.toLowerCase()) || url;
+		});
+		this.manager.onError = url => this.resourceError(url);
+	}
+
+	loadFiles(files) {
+		for (const url of this.resources.values()) URL.revokeObjectURL(url);
+		this.resources.clear();
+		this.resourcesLower.clear();
+
+		const list = Array.from(files);
+		let totalSize = 0;
+		for (const file of list) {
+			const url = URL.createObjectURL(file);
+			this.resources.set(file.name, url);
+			this.resourcesLower.set(file.name.toLowerCase(), url);
+			totalSize += file.size;
+		}
+
+		const modelExt = ['glb', 'gltf', 'fbx', 'stl', 'dae', 'obj', 'ply', '3mf'];
+		const main = list.find(f => modelExt.includes(f.name.split('.').pop().toLowerCase()));
+		if (!main) {
+			alert('Aucun fichier 3D reconnu dans la sélection.');
+			return;
+		}
+
+		this.filesize = totalSize;
+		this.loadFile(main);
 	}
 
 	setWireframe(enabled) {
@@ -44,7 +79,7 @@ export default class Load {
 	loadFile(file, object) {
 		this.filename = file.name;
 		this.extension = this.filename.split('.').pop().toLowerCase();
-		this.filesize = file.size;
+		this.loadError = false;
 		this.material = new THREE.MeshPhongMaterial({ color: 0xAAAAAA, specular: 0x111111, shininess: 100 });
 
 		if (this.currentModel) this.scene.remove(this.currentModel);
@@ -192,9 +227,13 @@ export default class Load {
 	loadGltf(file, object) {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
-			const loader = new GLTFLoader();
+			const loader = new GLTFLoader(this.manager);
 			try {
-				loader.parse(contents, '', gltf => this.frameModel(gltf.scene));
+				loader.parse(
+					contents, '',
+					gltf => this.frameModel(gltf.scene),
+					error => this.errorMessage(this.filename, error, 'gltf')
+				);
 			}
 			catch (error) {
 				this.errorMessage(this.filename, error);
@@ -207,7 +246,7 @@ export default class Load {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
 			try {
-				object = new FBXLoader().parse(contents);
+				object = new FBXLoader(this.manager).parse(contents, '');
 			}
 			catch (error) {
 				this.errorMessage(this.filename, error);
@@ -243,7 +282,7 @@ export default class Load {
 			const contents = readerEvent.target.result;
 			let collada;
 			try {
-				collada = new ColladaLoader().parse(contents);
+				collada = new ColladaLoader(this.manager).parse(contents);
 			}
 			catch (error) {
 				this.errorMessage(this.filename, error);
@@ -261,16 +300,45 @@ export default class Load {
 	loadObj(file, object) {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
-			try {
-				object = new OBJLoader().parse(contents);
+			const mtlUrl = this.findResource('.mtl');
+			if (mtlUrl) {
+				new MTLLoader(this.manager).load(
+					mtlUrl,
+					materials => { materials.preload(); this.parseObj(contents, materials); },
+					undefined,
+					() => this.parseObj(contents, null)
+				);
+			} else {
+				this.parseObj(contents, null);
 			}
-			catch (error) {
-				this.errorMessage(this.filename, error);
-				return;
-			}
-			this.frameModel(object);
 		}
 		this.reader.readAsText(file);
+	}
+
+	parseObj(contents, materials) {
+		let object;
+		try {
+			const loader = new OBJLoader(this.manager);
+			if (materials) loader.setMaterials(materials);
+			object = loader.parse(contents);
+		}
+		catch (error) {
+			this.errorMessage(this.filename, error);
+			return;
+		}
+		object.traverse(child => {
+			if (child.isMesh && child.geometry && !child.geometry.attributes.normal) {
+				child.geometry.computeVertexNormals();
+			}
+		});
+		this.frameModel(object);
+	}
+
+	findResource(extension) {
+		for (const [name, url] of this.resources) {
+			if (name.toLowerCase().endsWith(extension)) return url;
+		}
+		return null;
 	}
 
 	loadPly(file) {
@@ -315,14 +383,43 @@ export default class Load {
 		this.filename = path.split('/').pop();
 		this.extension = this.filename.split('.').pop().toLowerCase();
 		this.filesize = null;
+		this.loadError = false;
 		this.spinner.show();
 		return new Promise((resolve) => {
 			new GLTFLoader().load(path, gltf => resolve(this.frameModel(gltf.scene)));
 		});
 	}
 
-	errorMessage(filename, error) {
+	errorMessage(filename, error, kind) {
 		this.spinner.hide();
+		if (this.loadError) return;
+		this.loadError = true;
+		if (kind === 'gltf') {
+			this.missingResourceAlert();
+			return;
+		}
 		alert("Your file " + filename + " was not parsed correctly." + "\n\n" + "ERROR MESSAGE : " + error.message);
+	}
+
+	resourceError(url) {
+		this.spinner.hide();
+		if (this.loadError) return; /* une seule alerte par chargement */
+		this.loadError = true;
+		const name = url ? decodeURIComponent(url.split('/').pop().split('\\').pop()) : '';
+		this.missingResourceAlert(name);
+	}
+
+	missingResourceAlert(name) {
+		const header = name
+			? `Missing external file: "${name}".\n\n`
+			: `Missing external file(s).\n\n`;
+		alert(
+			header +
+			`Drop the model together with ALL its files at once (matching filenames):\n` +
+			`• .gltf  →  + .bin + textures\n` +
+			`• .obj   →  + .mtl + textures\n` +
+			`• .dae / .fbx  →  + textures\n\n` +
+			`Tip: .glb and .3mf pack everything into a single file.`
+		);
 	}
 }

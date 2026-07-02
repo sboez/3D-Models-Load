@@ -11,7 +11,7 @@ export default class DragDrop {
 
 	createOverlay() {
 		this.overlay = document.createElement('div');
-		this.overlay.textContent = 'Drop your 3D file here';
+		this.overlay.textContent = 'Drop your 3D file(s) here';
 		Object.assign(this.overlay.style, {
 			position: 'fixed',
 			inset: '0',
@@ -57,15 +57,17 @@ export default class DragDrop {
 			this.dragCounter = 0;
 			this.hide();
 
-			const file = e.dataTransfer.files[0];
-			if (!file) return;
+			const files = e.dataTransfer.files;
+			if (!files.length) return;
 
-			const extension = file.name.split('.').pop().toLowerCase();
-			if (!SUPPORTED.includes(extension)) {
-				alert(`Format ".${extension}" non supporté.\n\nFormats acceptés : ${SUPPORTED.join(', ')}`);
+			const hasModel = Array.from(files).some(f =>
+				SUPPORTED.includes(f.name.split('.').pop().toLowerCase())
+			);
+			if (!hasModel) {
+				alert(`Aucun fichier 3D reconnu.\n\nFormats acceptés : ${SUPPORTED.join(', ')}`);
 				return;
 			}
-			this.load.loadFile(file);
+			this.load.loadFiles(files);
 		});
 	}
 }
