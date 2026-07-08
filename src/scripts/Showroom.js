@@ -49,17 +49,6 @@ export default class Showroom {
 		}
 	}
 
-	randomPos() {
-		let r = [];
-		for (let i = 0; i < 4; ++i) {
-			r.push(Math.floor(Math.random() * 110));
-		}
-		this.spots[0].position.set(r[0], r[1], r[2]);
-		this.spots[1].position.set(r[1], r[0], r[2]);
-		this.spots[2].position.set(r[2], r[1], r[0]);
-		this.spots[3].position.set(r[0], r[2], r[1]);
-	}
-
 	randomColor() {
 		for (let i = 0; i < 4; ++i) {
 			const color = ('#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6));

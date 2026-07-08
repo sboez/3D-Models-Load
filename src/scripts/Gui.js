@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import GUI from "lil-gui";
 import MaterialColors from "./MaterialColors";
+import Animator from "./Animator";
 
 const gui = new GUI();
 
@@ -10,7 +11,7 @@ export default class Gui {
       this.load = load;
       this.showroom = showroom;
 
-      this.sampleModels = { samples: "Avatar" };
+      this.sampleModels = { samples: "./models/gltf/leia.glb" };
    }
 
    addGUI(object) {
@@ -68,9 +69,6 @@ export default class Gui {
             }
             model.rotation.set(0, 0, 0);
          },
-         randomPos: () => {
-            this.showroom.randomPos();
-         },
          randomColor: () => {
             this.showroom.randomColor();
          },
@@ -119,10 +117,17 @@ export default class Gui {
 
       this.materialColors = new MaterialColors(gui);
       this.load.addLoadListener((model) => this.materialColors.update(model));
+
+      this.animator = new Animator(gui);
+      this.load.addLoadListener((model) => this.animator.setModel(model));
+   }
+
+   updateAnimation() {
+      if (this.animator) this.animator.update();
    }
 
    setPosition(params) {
-      const folderPos = gui.addFolder("Position");
+      const folderPos = gui.addFolder("Position").close();
       folderPos
          .add(params, "posX", -140, 140)
          .name("X")
@@ -144,7 +149,7 @@ export default class Gui {
    }
 
    setScale(params) {
-      const folderScale = gui.addFolder("Scale");
+      const folderScale = gui.addFolder("Scale").close();
       folderScale
          .add(params, "scale", -500, 500)
          .name("- / +")
@@ -175,7 +180,7 @@ export default class Gui {
    }
 
    setRotation(params) {
-      const folderRot = gui.addFolder("Rotation");
+      const folderRot = gui.addFolder("Rotation").close();
       folderRot
          .add(params, "rotY", -5, 5)
          .name("Y")
@@ -197,12 +202,8 @@ export default class Gui {
       const folderModel = gui.addFolder("Model");
       folderModel
          .add(this.sampleModels, "samples", {
-            "Avatar": "./models/gltf/avatar.glb",
+            "Leia": "./models/gltf/leia.glb",
             "Street Car": "./models/gltf/street_car.glb",
-            "F1 Car": "./models/gltf/f1_car.glb",
-            "Off-Road Truck": "./models/gltf/offroad_truck.glb",
-            "Motorbike": "./models/gltf/motorbike.glb",
-            "Empire State Building": "./models/gltf/empire_state_building.glb",
          })
          .onChange((value) => {
             let path = value;
@@ -259,7 +260,6 @@ export default class Gui {
       for (let i = 0; i < this.showroom.spots.length; ++i) {
          this.showroom.spots[i].intensity = params.intens;
       }
-      folderMode.add(params, "randomPos").name("Random Position");
       folderMode.add(params, "randomColor").name("Random Color");
    }
 }

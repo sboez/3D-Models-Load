@@ -53,14 +53,70 @@ export default class Load {
 		}
 
 		const modelExt = ['glb', 'gltf', 'fbx', 'stl', 'dae', 'obj', 'ply', '3mf'];
-		const main = list.find(f => modelExt.includes(f.name.split('.').pop().toLowerCase()));
-		if (!main) {
+		const modelFiles = list.filter(f => modelExt.includes(f.name.split('.').pop().toLowerCase()));
+		if (!modelFiles.length) {
 			alert('Aucun fichier 3D reconnu dans la sélection.');
 			return;
 		}
 
 		this.filesize = totalSize;
-		this.loadFile(main);
+
+		const gltfFiles = modelFiles.filter(f => ['glb', 'gltf'].includes(f.name.split('.').pop().toLowerCase()));
+		if (gltfFiles.length > 1) {
+			this.loadGltfSet(gltfFiles);
+			return;
+		}
+
+		this.loadFile(modelFiles[0]);
+	}
+
+	loadGltfSet(files) {
+		this.loadError = false;
+		if (this.currentModel) this.scene.remove(this.currentModel);
+		this.spinner.show();
+
+		Promise.all(files.map(file => this.parseGltfFile(file)))
+			.then(pairs => {
+				const base = pairs.reduce((best, pair) =>
+					this.meshCount(pair.gltf.scene) > this.meshCount(best.gltf.scene) ? pair : best
+				, pairs[0]);
+
+				const animations = [];
+				pairs.forEach(pair => {
+					const clips = pair.gltf.animations || [];
+					const label = pair.file.name.replace(/\.[^.]+$/, '');
+					clips.forEach((clip, i) => {
+						clip.name = clips.length > 1 ? `${label} #${i + 1}` : label;
+						animations.push(clip);
+					});
+				});
+
+				this.filename = base.file.name;
+				this.extension = this.filename.split('.').pop().toLowerCase();
+				this.frameModel(base.gltf.scene, animations);
+			})
+			.catch(error => this.errorMessage(this.filename || 'model', error, 'gltf'));
+	}
+
+	parseGltfFile(file) {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = event => {
+				new GLTFLoader(this.manager).parse(
+					event.target.result, '',
+					gltf => resolve({ file, gltf }),
+					error => reject(error)
+				);
+			};
+			reader.onerror = () => reject(new Error(`Cannot read ${file.name}`));
+			reader.readAsArrayBuffer(file);
+		});
+	}
+
+	meshCount(root) {
+		let count = 0;
+		root.traverse(child => { if (child.isMesh) count++; });
+		return count;
 	}
 
 	addLoadListener(fn) {
@@ -120,9 +176,7 @@ export default class Load {
 		}
 	}
 
-	/* normalise n'importe quel objet chargé : ombres, mise à l'échelle sur TARGET_SIZE,
-	   recentrage X/Z et base posée sur le sol — quelle que soit sa taille/position d'origine. */
-	frameModel(object) {
+	frameModel(object, animations = []) {
 		object.traverse(child => {
 			if (child.isMesh) {
 				child.castShadow = true;
@@ -147,8 +201,8 @@ export default class Load {
 			position: pivot.position.clone(),
 			scale: pivot.scale.clone(),
 		};
+		pivot.userData.animations = animations;
 
-		/* métriques d'origine (avant normalisation) —  pour le panneau de stats */
 		pivot.userData.info = {
 			filename: this.filename || '',
 			extension: this.extension || '',
@@ -239,7 +293,7 @@ export default class Load {
 			try {
 				loader.parse(
 					contents, '',
-					gltf => this.frameModel(gltf.scene),
+					gltf => this.frameModel(gltf.scene, gltf.animations),
 					error => this.errorMessage(this.filename, error, 'gltf')
 				);
 			}
@@ -260,7 +314,7 @@ export default class Load {
 				this.errorMessage(this.filename, error);
 				return;
 			}
-			this.frameModel(object);
+			this.frameModel(object, object.animations);
 		}
 		this.reader.readAsArrayBuffer(file);
 	}
@@ -300,7 +354,7 @@ export default class Load {
 			for (var i = 0; i < object.children[0].children.length; ++i) {
 				object.children[0].children[i].material = this.material;
 			}
-			this.frameModel(object);
+			this.frameModel(object, object.animations || []);
 		}
 		this.reader.readAsText(file);
 	}
@@ -394,7 +448,7 @@ export default class Load {
 		this.loadError = false;
 		this.spinner.show();
 		return new Promise((resolve) => {
-			new GLTFLoader().load(path, gltf => resolve(this.frameModel(gltf.scene)));
+			new GLTFLoader().load(path, gltf => resolve(this.frameModel(gltf.scene, gltf.animations)));
 		});
 	}
 

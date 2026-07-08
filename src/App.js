@@ -22,7 +22,7 @@ class App {
 		this.gui = new Gui(this.scene, this.load, this.showroom);
 		this.dragDrop = new DragDrop(this.load);
 
-		await this.load.loadSample('./models/gltf/avatar.glb');
+		await this.load.loadSample('./models/gltf/leia.glb');
 		this.gui.addGUI(this.load.currentModel);
 
 		this.init();
@@ -42,6 +42,7 @@ class App {
 
 	animate() {
 		requestAnimationFrame(this.animate.bind(this));
+		this.gui.updateAnimation();
 		this.scene.renderer.render(this.scene, this.scene.camera);
 		this.gui.rotateModel();
 	}

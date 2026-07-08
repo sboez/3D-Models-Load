@@ -13,7 +13,7 @@ export default class Scene extends THREE.Scene {
 		this.background = this.defaultBackground;
 
 		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000000);
-		this.camera.position.set(140, 110, 140);
+		this.camera.position.set(75, 102, 175);
 
 		this.setFloor();
 		this.setGrid();
@@ -123,7 +123,7 @@ export default class Scene extends THREE.Scene {
 	setControls() {
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 		this.controls.maxPolarAngle = Math.PI / 2;
-		this.controls.target = new THREE.Vector3(0, 15, 0);
+		this.controls.target = new THREE.Vector3(0, 35, 0);
 		this.controls.update();
 	}
 }
