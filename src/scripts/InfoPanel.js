@@ -87,13 +87,6 @@ export default class InfoPanel {
 			this.row('File', this.bytes(info.fileSize)),
 		];
 
-		let materialList = '';
-		if (info.materials.length) {
-			let names = info.materials.join(', ');
-			if (names.length > 60) names = names.slice(0, 57) + '…';
-			materialList = `<div style="opacity:.4;font-size:11px;margin-top:2px">${this.escape(names)}</div>`;
-		}
-
 		const name = this.escape(info.filename || 'model');
 		const ext = this.escape((info.extension || '').toUpperCase());
 
@@ -103,8 +96,7 @@ export default class InfoPanel {
 			</div>` +
 			transform.join('') +
 			this.divider() +
-			stats.join('') +
-			materialList;
+			stats.join('')
 		this.el.style.display = 'block';
 	}
 }

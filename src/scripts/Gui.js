@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import GUI from "lil-gui";
+import MaterialColors from "./MaterialColors";
 
 const gui = new GUI();
 
@@ -9,7 +10,7 @@ export default class Gui {
       this.load = load;
       this.showroom = showroom;
 
-      this.sampleModels = { samples: "Street Car" };
+      this.sampleModels = { samples: "Avatar" };
    }
 
    addGUI(object) {
@@ -115,6 +116,9 @@ export default class Gui {
       this.setModel(params);
       this.setMode(params);
       gui.add(params, "reset").name("Reset");
+
+      this.materialColors = new MaterialColors(gui);
+      this.load.addLoadListener((model) => this.materialColors.update(model));
    }
 
    setPosition(params) {
@@ -193,10 +197,11 @@ export default class Gui {
       const folderModel = gui.addFolder("Model");
       folderModel
          .add(this.sampleModels, "samples", {
+            "Avatar": "./models/gltf/avatar.glb",
             "Street Car": "./models/gltf/street_car.glb",
             "F1 Car": "./models/gltf/f1_car.glb",
             "Off-Road Truck": "./models/gltf/offroad_truck.glb",
-            Motorbike: "./models/gltf/motorbike.glb",
+            "Motorbike": "./models/gltf/motorbike.glb",
             "Empire State Building": "./models/gltf/empire_state_building.glb",
          })
          .onChange((value) => {

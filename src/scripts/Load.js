@@ -26,6 +26,7 @@ export default class Load {
 		this.spinner = new Spinner();
 		this.infoPanel = new InfoPanel();
 		this.wireframe = false;
+		this.loadListeners = [];
 		this.resources = new Map();
 		this.resourcesLower = new Map();
 		this.manager = new THREE.LoadingManager();
@@ -60,6 +61,11 @@ export default class Load {
 
 		this.filesize = totalSize;
 		this.loadFile(main);
+	}
+
+	addLoadListener(fn) {
+		this.loadListeners.push(fn);
+		if (this.currentModel) fn(this.currentModel);
 	}
 
 	setWireframe(enabled) {
@@ -160,6 +166,7 @@ export default class Load {
 		this.applyWireframe(pivot);
 		this.spinner.hide();
 		this.infoPanel.update(pivot.userData.info);
+		this.loadListeners.forEach(fn => fn(pivot));
 		return pivot;
 	}
 
@@ -191,7 +198,7 @@ export default class Load {
 					if (value && value.isTexture && !textures.has(value)) {
 						textures.add(value);
 						const image = value.image;
-						if (image && image.width) textureBytes += image.width * image.height * 4 * 1.33; /* +mipmaps approx */
+						if (image && image.width) textureBytes += image.width * image.height * 4 * 1.33;
 					}
 				}
 			}
@@ -211,6 +218,7 @@ export default class Load {
 		if (this.currentModel) this.scene.remove(this.currentModel);
 		this.currentModel = null;
 		this.infoPanel.update(null);
+		this.loadListeners.forEach(fn => fn(null));
 	}
 
 	rotateBy90(axis) {

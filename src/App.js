@@ -22,7 +22,7 @@ class App {
 		this.gui = new Gui(this.scene, this.load, this.showroom);
 		this.dragDrop = new DragDrop(this.load);
 
-		await this.load.loadSample('./models/gltf/street_car.glb');
+		await this.load.loadSample('./models/gltf/avatar.glb');
 		this.gui.addGUI(this.load.currentModel);
 
 		this.init();
