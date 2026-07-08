@@ -1,6 +1,6 @@
 export default class MaterialColors {
 	constructor(gui) {
-		this.folder = gui.addFolder('Colors');
+		this.folder = gui.addFolder('Colors').close();
 		this.controllers = [];
 	}
 

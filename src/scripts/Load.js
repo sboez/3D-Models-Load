@@ -178,10 +178,11 @@ export default class Load {
 
 	frameModel(object, animations = []) {
 		object.traverse(child => {
-			if (child.isMesh) {
-				child.castShadow = true;
-				child.receiveShadow = true;
-			}
+			if (!child.isMesh) return;
+			child.castShadow = true;
+			child.receiveShadow = true;
+			const mats = Array.isArray(child.material) ? child.material : [child.material];
+			mats.forEach(mat => { if (mat) mat.fog = false; });
 		});
 
 		const box = new THREE.Box3().setFromObject(object);

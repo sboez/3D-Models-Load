@@ -1,6 +1,13 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as THREE from 'three';
 
+const FLOOR_SIZE = 3500;
+const GRID_DIVISIONS = 100;
+const FOG_NEAR_FACTOR = 1.2;
+const FOG_FAR_FACTOR = 3.2;
+const DISC_INNER = 50;
+const DISC_OUTER = 82;
+
 export default class Scene extends THREE.Scene {
 	constructor() {
 		super();
@@ -11,6 +18,8 @@ export default class Scene extends THREE.Scene {
 	setScene() {
 		this.defaultBackground = new THREE.Color(0x1e1e22);
 		this.background = this.defaultBackground;
+		this.normalFog = new THREE.Fog(this.defaultBackground, 200, 600);
+		this.fog = this.normalFog;
 
 		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000000);
 		this.camera.position.set(75, 102, 175);
@@ -25,7 +34,7 @@ export default class Scene extends THREE.Scene {
 	setFloor() {
 		this.floorAlpha = this.radialAlphaTexture();
 		this.plane = new THREE.Mesh(
-			new THREE.PlaneGeometry(200, 200),
+			new THREE.PlaneGeometry(FLOOR_SIZE, FLOOR_SIZE),
 			new THREE.MeshPhongMaterial({ color: 0xcfcfcf, side: THREE.DoubleSide })
 		);
 		this.plane.rotation.x = -Math.PI / 2;
@@ -34,19 +43,28 @@ export default class Scene extends THREE.Scene {
 	}
 
 	setGrid() {
-		this.grid = new THREE.GridHelper(200, 20, 0x444444, 0x888888);
-		this.grid.position.y = 0.01; /* évite le z-fighting avec le sol */
-		this.buildGridColors(this.grid, 100);
+		this.grid = new THREE.GridHelper(FLOOR_SIZE, GRID_DIVISIONS, 0x444444, 0x888888);
+		this.grid.position.y = 0.01;
+		this.buildGridColors(this.grid);
 		this.add(this.grid);
+	}
+
+	updateFog() {
+		if (!this.fog) return; /* Showroom : pas de fog */
+		const distance = this.camera.position.distanceTo(this.controls.target);
+		this.fog.near = distance * FOG_NEAR_FACTOR;
+		this.fog.far = distance * FOG_FAR_FACTOR;
 	}
 
 	setGroundStyle(showroom) {
 		if (showroom) {
+			this.fog = null;
 			this.plane.material.alphaMap = this.floorAlpha;
 			this.plane.material.transparent = true;
 			this.grid.geometry.setAttribute('color', this.gridColorFaded);
 			this.grid.material.transparent = true;
 		} else {
+			this.fog = this.normalFog;
 			this.plane.material.alphaMap = null;
 			this.plane.material.transparent = false;
 			this.grid.geometry.setAttribute('color', this.gridColorSolid);
@@ -62,28 +80,26 @@ export default class Scene extends THREE.Scene {
 		canvas.width = canvas.height = size;
 		const ctx = canvas.getContext('2d');
 		const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-
+		const half = FLOOR_SIZE / 2;
 		gradient.addColorStop(0.0, 'rgba(255, 255, 255, 1)');
-		gradient.addColorStop(0.5, 'rgba(255, 255, 255, 1)');
-		gradient.addColorStop(0.82, 'rgba(0, 0, 0, 1)');
+		gradient.addColorStop(DISC_INNER / half, 'rgba(255, 255, 255, 1)');
+		gradient.addColorStop(DISC_OUTER / half, 'rgba(0, 0, 0, 1)');
 		ctx.fillStyle = gradient;
 		ctx.fillRect(0, 0, size, size);
 		return new THREE.CanvasTexture(canvas);
 	}
 
-	buildGridColors(grid, halfSize) {
+	buildGridColors(grid) {
 		const position = grid.geometry.attributes.position;
 		const color = grid.geometry.attributes.color;
 		const solid = new Float32Array(position.count * 4);
 		const faded = new Float32Array(position.count * 4);
-		const inner = halfSize * 0.5;
-		const outer = halfSize * 0.82;
 		for (let i = 0; i < position.count; ++i) {
 			const r = color.getX(i);
 			const g = color.getY(i);
 			const b = color.getZ(i);
 			const distance = Math.hypot(position.getX(i), position.getZ(i));
-			let alpha = (outer - distance) / (outer - inner);
+			let alpha = (DISC_OUTER - distance) / (DISC_OUTER - DISC_INNER);
 			alpha = Math.min(1, Math.max(0, alpha));
 			solid.set([r, g, b, 1], i * 4);
 			faded.set([r, g, b, alpha * alpha], i * 4);
@@ -123,7 +139,9 @@ export default class Scene extends THREE.Scene {
 	setControls() {
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 		this.controls.maxPolarAngle = Math.PI / 2;
-		this.controls.target = new THREE.Vector3(0, 35, 0);
+		this.controls.minDistance = 0;
+		this.controls.maxDistance = 800;
+		this.controls.target = new THREE.Vector3(0, 45, 0);
 		this.controls.update();
 	}
 }

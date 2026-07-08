@@ -83,6 +83,7 @@ export default class Gui {
          this.scene.hemLight.visible = false;
          this.scene.light.visible = false;
          this.scene.setGroundStyle(true);
+         this.showShowroomControls(true);
          this.showroom.turnOn();
       }
    }
@@ -104,6 +105,7 @@ export default class Gui {
       this.scene.hemLight.visible = true;
       this.scene.light.visible = true;
       this.scene.setGroundStyle(false);
+      this.showShowroomControls(false);
       this.showroom.turnOff();
    }
 
@@ -241,7 +243,7 @@ export default class Gui {
          .onChange(() => {
             this.rotate(params);
          });
-      folderMode
+      this.colorCtrl = folderMode
          .addColor(params, "color")
          .name("Color")
          .onChange(() => {
@@ -249,7 +251,7 @@ export default class Gui {
                this.showroom.spots[i].color.set(params.color);
             }
          });
-      folderMode
+      this.intensCtrl = folderMode
          .add(params, "intens", 1, 10)
          .name("Intensity")
          .onChange(() => {
@@ -260,6 +262,15 @@ export default class Gui {
       for (let i = 0; i < this.showroom.spots.length; ++i) {
          this.showroom.spots[i].intensity = params.intens;
       }
-      folderMode.add(params, "randomColor").name("Random Color");
+      this.randomColorCtrl = folderMode.add(params, "randomColor").name("Random Color");
+
+      this.showShowroomControls(false);
+   }
+
+   showShowroomControls(show) {
+      if (!this.colorCtrl) return;
+      this.colorCtrl.show(show);
+      this.intensCtrl.show(show);
+      this.randomColorCtrl.show(show);
    }
 }

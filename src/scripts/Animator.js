@@ -60,7 +60,7 @@ export default class Animator {
 		this.controllers.push(this.playController);
 
 		this.controllers.push(
-			this.folder.add({ rest: () => this.restPose() }, 'reset').name('Reset pose')
+			this.folder.add({ reset: () => this.restPose() }, 'reset').name('Reset pose')
 		);
 
 		this.timeController = this.folder.add(this.params, 'time', 0, 1, 0.001).name('Time')
