@@ -1,36 +1,48 @@
 # 3D-Models-Load
 
-![GitHub stars](https://img.shields.io/github/stars/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/github/license/sboez/3D-Models-Load) <img src="https://img.shields.io/badge/three.js-r137.5-orange"> <img src=https://img.shields.io/netlify/0ebe41c9-114d-44c6-a8f3-1e9061af7f37>
+![GitHub stars](https://img.shields.io/github/stars/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/github/license/sboez/3D-Models-Load) <img src="https://img.shields.io/badge/three.js-r185-orange"> <img src="https://img.shields.io/netlify/0ebe41c9-114d-44c6-a8f3-1e9061af7f37">
 
-Load your 3D model easily in a Three.js scene and enjoy Showroom mode.
+A browser viewer to inspect 3D assets before production: drag & drop your model, check its stats, tweak material colors, play animations, and show it off in Showroom mode.
 
 ## Usage
 
-Enjoy [live demo](https://3d-models-load.netlify.app/) or run locally :
+Try the [live demo](https://3d-models-load.netlify.app/), or run it locally:
 
 ```shell
 git clone https://github.com/sboez/3D-Models-Load.git
-```
-
-```shell
+cd 3D-Models-Load
 npm install
-```
-
-```shell
 npm run dev
 ```
 
-## Compatible formats
+## Features
 
-**.STL .DAE .FBX .GLTF .GLB**
+- **Drag & drop** any supported model straight into the scene
+- **Stats panel** — dimensions, triangle & vertex count, materials, textures, file size
+- **Material colors** — recolor each material to check how the asset is split
+- **Wireframe** mode
+- **Animations** — play/pause, scrub the timeline, switch clips, adjust speed
+- **Showroom** mode — dramatic multi-spot lighting on a studio floor
+- Every model is automatically centered, grounded and normalized to a consistent size
 
-## Textures
+## Supported formats
 
-Only **.GLB** can show you the model with a texture because it's a binary file who contains images. It's also possible with **.FBX**, with Blender you need to check _copy_ in _Path Mode_ during export.
-Others need to add texture manually. But you can still change the texture path in the code, follow the procedure explained in the comments.
+**.GLTF .GLB .FBX .OBJ .STL .DAE .PLY .3MF**
 
-## Samples
+Multi-file assets work too: drop the model together with its external files (`.bin`, `.mtl`, textures) — just select them all at once.
 
-My samples models are lightweight **.GLB**
+## Animations
 
-[<img width="700" alt="Capture d’écran 2020-03-09 à 14 21 10" src="https://user-images.githubusercontent.com/23494780/76219808-b2fdc700-6216-11ea-974f-99a0076f6cf3.png">](https://sboez.github.io/3D-Models-Load/)
+Drop your model and its animation files at the same time. The animation files must share the same skeleton (bone names) as the model. A clip named **Idle** is played first by default when present.
+
+## Roadmap (V2)
+
+- [x] .PLY and .3MF formats
+- [x] Drag & drop
+- [x] Stats panel
+- [x] Wireframe
+- [x] Animations
+- [ ] Screenshot
+- [ ] Export (GLB)
+
+[<img width="700" alt="3D-Models-Load screenshot" src="screenshots/v2.png">](https://3d-models-load.netlify.app/)
