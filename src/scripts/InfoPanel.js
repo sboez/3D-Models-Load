@@ -1,5 +1,7 @@
 export default class InfoPanel {
 	constructor() {
+		this.info = null;
+		this.realSize = false;
 		this.createElement();
 	}
 
@@ -58,6 +60,18 @@ export default class InfoPanel {
 	}
 
 	update(info) {
+		this.info = info;
+		this.realSize = false;
+		this.render();
+	}
+
+	setRealSize(on) {
+		this.realSize = on;
+		this.render();
+	}
+
+	render() {
+		const info = this.info;
 		if (!info) {
 			this.el.style.display = 'none';
 			return;
@@ -70,9 +84,13 @@ export default class InfoPanel {
 		const transform = [
 			this.row('Size', dims),
 			this.row('Max dim', this.format(maxDim)),
-			this.row('Normalized', `×${this.format(info.scaleFactor)} → ${info.targetSize}u`),
-			this.row('Transform', 'recentered + grounded'),
 		];
+		if (this.realSize) {
+			transform.push(this.row('Scale', 'real size (×1)'));
+		} else {
+			transform.push(this.row('Normalized', `×${this.format(info.scaleFactor)} → ${info.targetSize}u`));
+		}
+		transform.push(this.row('Transform', 'recentered + grounded'));
 		if (info.zUpFixed) transform.push(this.row('Axis', 'Z-up → Y-up'));
 
 		const textures = info.textureCount

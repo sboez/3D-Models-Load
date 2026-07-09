@@ -182,7 +182,7 @@ export default class Load {
 			child.castShadow = true;
 			child.receiveShadow = true;
 			const mats = Array.isArray(child.material) ? child.material : [child.material];
-			mats.forEach(mat => { if (mat) mat.fog = false; });
+			mats.forEach(mat => { if (mat) { mat.fog = false; mat.dithering = true; } });
 		});
 
 		const box = new THREE.Box3().setFromObject(object);
@@ -285,6 +285,24 @@ export default class Load {
 	groundModel(model) {
 		const box = new THREE.Box3().setFromObject(model);
 		model.position.y -= box.min.y;
+	}
+
+	setRealSize(enabled) {
+		const model = this.currentModel;
+		if (!model) return;
+		if (enabled) {
+			model.scale.set(1, 1, 1);
+			model.position.set(0, 0, 0);
+			model.rotation.set(0, 0, 0);
+			this.groundModel(model);
+		} else {
+			const home = model.userData.home;
+			if (home) {
+				model.position.copy(home.position);
+				model.scale.copy(home.scale);
+			}
+			model.rotation.set(0, 0, 0);
+		}
 	}
 
 	loadGltf(file, object) {

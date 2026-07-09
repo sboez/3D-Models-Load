@@ -1,8 +1,8 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import InfiniteGrid from './InfiniteGrid';
 import * as THREE from 'three';
 
 const FLOOR_SIZE = 3500;
-const GRID_DIVISIONS = 100;
 const FOG_NEAR_FACTOR = 1.2;
 const FOG_FAR_FACTOR = 3.2;
 const DISC_INNER = 50;
@@ -25,28 +25,26 @@ export default class Scene extends THREE.Scene {
 		this.camera.position.set(75, 102, 175);
 
 		this.setFloor();
-		this.setGrid();
+		this.setInfiniteGrid();
 		this.setLights();
 		this.setRenderer();
 		this.setControls();
+	}
+
+	setInfiniteGrid() {
+		this.infiniteGrid = new InfiniteGrid();
+		this.add(this.infiniteGrid);
 	}
 
 	setFloor() {
 		this.floorAlpha = this.radialAlphaTexture();
 		this.plane = new THREE.Mesh(
 			new THREE.PlaneGeometry(FLOOR_SIZE, FLOOR_SIZE),
-			new THREE.MeshPhongMaterial({ color: 0xcfcfcf, side: THREE.DoubleSide })
+			new THREE.MeshPhongMaterial({ color: 0xcfcfcf, side: THREE.DoubleSide, dithering: true })
 		);
 		this.plane.rotation.x = -Math.PI / 2;
 		this.plane.receiveShadow = true;
 		this.add(this.plane);
-	}
-
-	setGrid() {
-		this.grid = new THREE.GridHelper(FLOOR_SIZE, GRID_DIVISIONS, 0x444444, 0x888888);
-		this.grid.position.y = 0.01;
-		this.buildGridColors(this.grid);
-		this.add(this.grid);
 	}
 
 	updateFog() {
@@ -56,22 +54,66 @@ export default class Scene extends THREE.Scene {
 		this.fog.far = distance * FOG_FAR_FACTOR;
 	}
 
+	applyRealSizeView(box) {
+		if (!this._realSize) {
+			this._savedView = {
+				position: this.camera.position.clone(),
+				target: this.controls.target.clone(),
+				min: this.controls.minDistance,
+				max: this.controls.maxDistance,
+			};
+		}
+
+		const size = box.getSize(new THREE.Vector3());
+		const center = box.getCenter(new THREE.Vector3());
+		const maxDim = Math.max(size.x, size.y, size.z) || 1;
+
+		const dir = new THREE.Vector3().subVectors(this.camera.position, this.controls.target);
+		if (dir.lengthSq() < 1e-6) dir.set(75, 57, 175);
+		dir.normalize();
+		this.camera.position.copy(center).addScaledVector(dir, maxDim * 2.6);
+		this.controls.target.copy(center);
+		this.controls.minDistance = maxDim * 0.05;
+		this.controls.maxDistance = maxDim * 30;
+		this.controls.update();
+
+		this.infiniteGrid.setFade(maxDim * 12);
+		this.infiniteGrid.visible = true;
+		this.plane.visible = false;
+
+		this._realSize = true;
+	}
+
+	applyNormalView() {
+		this._realSize = false;
+		this.infiniteGrid.visible = false;
+		this.plane.visible = true;
+		if (!this._savedView) return;
+		this.camera.position.copy(this._savedView.position);
+		this.controls.target.copy(this._savedView.target);
+		this.controls.minDistance = this._savedView.min;
+		this.controls.maxDistance = this._savedView.max;
+		this.controls.update();
+		this._savedView = null;
+	}
+
+	updateInfiniteGrid() {
+		if (!this._realSize) return;
+		const distance = this.camera.position.distanceTo(this.controls.target);
+		this.infiniteGrid.setFade(distance * 4);
+	}
+
 	setGroundStyle(showroom) {
 		if (showroom) {
 			this.fog = null;
 			this.plane.material.alphaMap = this.floorAlpha;
 			this.plane.material.transparent = true;
-			this.grid.geometry.setAttribute('color', this.gridColorFaded);
-			this.grid.material.transparent = true;
 		} else {
 			this.fog = this.normalFog;
 			this.plane.material.alphaMap = null;
 			this.plane.material.transparent = false;
-			this.grid.geometry.setAttribute('color', this.gridColorSolid);
-			this.grid.material.transparent = false;
 		}
 		this.plane.material.needsUpdate = true;
-		this.grid.material.needsUpdate = true;
 	}
 
 	radialAlphaTexture() {
@@ -80,34 +122,18 @@ export default class Scene extends THREE.Scene {
 		canvas.width = canvas.height = size;
 		const ctx = canvas.getContext('2d');
 		const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-		const half = FLOOR_SIZE / 2;
 		gradient.addColorStop(0.0, 'rgba(255, 255, 255, 1)');
-		gradient.addColorStop(DISC_INNER / half, 'rgba(255, 255, 255, 1)');
-		gradient.addColorStop(DISC_OUTER / half, 'rgba(0, 0, 0, 1)');
+		gradient.addColorStop(DISC_INNER / DISC_OUTER, 'rgba(255, 255, 255, 1)');
+		gradient.addColorStop(1.0, 'rgba(0, 0, 0, 1)');
 		ctx.fillStyle = gradient;
 		ctx.fillRect(0, 0, size, size);
-		return new THREE.CanvasTexture(canvas);
-	}
 
-	buildGridColors(grid) {
-		const position = grid.geometry.attributes.position;
-		const color = grid.geometry.attributes.color;
-		const solid = new Float32Array(position.count * 4);
-		const faded = new Float32Array(position.count * 4);
-		for (let i = 0; i < position.count; ++i) {
-			const r = color.getX(i);
-			const g = color.getY(i);
-			const b = color.getZ(i);
-			const distance = Math.hypot(position.getX(i), position.getZ(i));
-			let alpha = (DISC_OUTER - distance) / (DISC_OUTER - DISC_INNER);
-			alpha = Math.min(1, Math.max(0, alpha));
-			solid.set([r, g, b, 1], i * 4);
-			faded.set([r, g, b, alpha * alpha], i * 4);
-		}
-		this.gridColorSolid = new THREE.BufferAttribute(solid, 4);
-		this.gridColorFaded = new THREE.BufferAttribute(faded, 4);
-		grid.material.vertexColors = true;
-		grid.geometry.setAttribute('color', this.gridColorSolid);
+		const tex = new THREE.CanvasTexture(canvas);
+		tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+		const span = (2 * DISC_OUTER) / FLOOR_SIZE;
+		tex.repeat.set(1 / span, 1 / span);
+		tex.offset.set(0.5 - 0.5 / span, 0.5 - 0.5 / span);
+		return tex;
 	}
 
 	setLights() {
@@ -118,8 +144,8 @@ export default class Scene extends THREE.Scene {
 		this.light.castShadow = true;
 		this.light.position.set(0, 50, 0)
 
-		this.light.shadow.mapSize.width = 1024;
-		this.light.shadow.mapSize.height = 1024;
+		this.light.shadow.mapSize.width = 2048;
+		this.light.shadow.mapSize.height = 2048;
 		this.light.shadow.camera.near = 0.5;
 		this.light.shadow.camera.far = 500;
 		const mapArea = 100
@@ -134,6 +160,7 @@ export default class Scene extends THREE.Scene {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 		this.renderer.shadowMap.enabled = true;
+		this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	}
 
 	setControls() {

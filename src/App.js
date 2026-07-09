@@ -44,6 +44,7 @@ class App {
 		requestAnimationFrame(this.animate.bind(this));
 		this.gui.updateAnimation();
 		this.scene.updateFog();
+		this.scene.updateInfiniteGrid();
 		this.scene.renderer.render(this.scene, this.scene.camera);
 		this.gui.rotateModel();
 	}

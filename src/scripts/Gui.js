@@ -15,6 +15,21 @@ export default class Gui {
       this.styleGUI();
    }
 
+   applyRealSize(on) {
+      if (!this.load.currentModel) return;
+      if (on) {
+         this.load.setRealSize(true);
+         const box = new THREE.Box3().setFromObject(this.load.currentModel);
+         this.scene.applyRealSizeView(box);
+         this.load.infoPanel.setRealSize(true);
+      } else {
+         this.load.setRealSize(false);
+         this.scene.applyNormalView();
+         this.load.infoPanel.setRealSize(false);
+      }
+      if (this.showroomCtrl) this.showroomCtrl.enable(!on);
+   }
+
    styleGUI() {
       const style = document.createElement("style");
       style.textContent = `
@@ -54,8 +69,8 @@ export default class Gui {
          color: 0xffffff,
          mode: false,
          turn: false,
-         grid: true,
          wireframe: false,
+         realSize: false,
          model: () => {
             const input = document.createElement("input");
             input.type = "file";
@@ -93,6 +108,14 @@ export default class Gui {
                model.scale.set(1, 1, 1);
             }
             model.rotation.set(0, 0, 0);
+
+            if (params.realSize) {
+               params.realSize = false;
+               this.scene.applyNormalView();
+               this.load.infoPanel.setRealSize(false);
+               if (this.showroomCtrl) this.showroomCtrl.enable(true);
+            }
+
             params.posX = params.posY = params.posZ = 0;
             params.scale = params.scaleX = params.scaleY = params.scaleZ = 0;
             params.rotX = params.rotY = 0;
@@ -116,6 +139,7 @@ export default class Gui {
          this.scene.setGroundStyle(true);
          this.showShowroomControls(true);
          this.showroom.turnOn();
+         if (this.realSizeCtrl) this.realSizeCtrl.enable(false);
       }
    }
 
@@ -138,6 +162,7 @@ export default class Gui {
       this.scene.setGroundStyle(false);
       this.showShowroomControls(false);
       this.showroom.turnOff();
+      if (this.realSizeCtrl) this.realSizeCtrl.enable(true);
    }
 
    setGUI(params) {
@@ -153,6 +178,9 @@ export default class Gui {
 
       this.animator = new Animator(gui);
       this.load.addLoadListener((model) => this.animator.setModel(model));
+      this.load.addLoadListener((model) => {
+         if (model && params.realSize) this.applyRealSize(true);
+      });
    }
 
    updateAnimation() {
@@ -251,11 +279,11 @@ export default class Gui {
 
    setMode(params) {
       const folderMode = gui.addFolder("⚙️ Mode");
-      folderMode
-         .add(params, "grid")
-         .name("Grid")
+      this.realSizeCtrl = folderMode
+         .add(params, "realSize")
+         .name("📐 Real size")
          .onChange(() => {
-            this.scene.grid.visible = params.grid;
+            this.applyRealSize(params.realSize);
          });
       folderMode
          .add(params, "wireframe")
@@ -263,7 +291,7 @@ export default class Gui {
          .onChange(() => {
             this.load.setWireframe(params.wireframe);
          });
-      folderMode
+      this.showroomCtrl = folderMode
          .add(params, "mode")
          .name("Showroom")
          .onChange(() => {
