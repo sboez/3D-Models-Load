@@ -12,6 +12,31 @@ export default class Gui {
       this.showroom = showroom;
 
       this.sampleModels = { samples: "./models/gltf/leia.glb" };
+      this.styleGUI();
+   }
+
+   styleGUI() {
+      const style = document.createElement("style");
+      style.textContent = `
+         .lil-gui {
+            --background-color: #202024;
+            --text-color: #d8d8dc;
+            --title-background-color: #17171b;
+            --title-text-color: #ffffff;
+            --widget-color: #303036;
+            --hover-color: #3b3b42;
+            --focus-color: #44444c;
+            --number-color: #6cb6ff;
+            --string-color: #8fd694;
+            --slider-knob-color: #6cb6ff;
+            --font-family: system-ui, -apple-system, sans-serif;
+         }
+         /* action principale mise en avant */
+         .lil-gui .controller.gui-primary { background: #26415f; }
+         .lil-gui .controller.gui-primary:hover { background: #2f5177; }
+         .lil-gui .controller.gui-primary .name { color: #cfe6ff; font-weight: 600; }
+      `;
+      document.head.appendChild(style);
    }
 
    addGUI(object) {
@@ -68,6 +93,12 @@ export default class Gui {
                model.scale.set(1, 1, 1);
             }
             model.rotation.set(0, 0, 0);
+            params.posX = params.posY = params.posZ = 0;
+            params.scale = params.scaleX = params.scaleY = params.scaleZ = 0;
+            params.rotX = params.rotY = 0;
+            params.turn = false;
+            params.mode = false;
+            gui.controllersRecursive().forEach((c) => c.updateDisplay());
          },
          randomColor: () => {
             this.showroom.randomColor();
@@ -129,7 +160,7 @@ export default class Gui {
    }
 
    setPosition(params) {
-      const folderPos = gui.addFolder("Position").close();
+      const folderPos = gui.addFolder("📍 Position").close();
       folderPos
          .add(params, "posX", -140, 140)
          .name("X")
@@ -151,7 +182,7 @@ export default class Gui {
    }
 
    setScale(params) {
-      const folderScale = gui.addFolder("Scale").close();
+      const folderScale = gui.addFolder("📏 Scale").close();
       folderScale
          .add(params, "scale", -500, 500)
          .name("- / +")
@@ -182,7 +213,7 @@ export default class Gui {
    }
 
    setRotation(params) {
-      const folderRot = gui.addFolder("Rotation").close();
+      const folderRot = gui.addFolder("🔄 Rotation").close();
       folderRot
          .add(params, "rotY", -5, 5)
          .name("Y")
@@ -201,7 +232,7 @@ export default class Gui {
    }
 
    setModel(params) {
-      const folderModel = gui.addFolder("Model");
+      const folderModel = gui.addFolder("📦 Model");
       folderModel
          .add(this.sampleModels, "samples", {
             "Leia": "./models/gltf/leia.glb",
@@ -212,13 +243,14 @@ export default class Gui {
             this.remove();
             this.load.loadSample(path);
          });
-      folderModel.add(params, "model").name("Load your model");
+      const loadCtrl = folderModel.add(params, "model").name("⤓ Load your model");
+      loadCtrl.domElement.classList.add("gui-primary");
       folderModel.add(params, "remove").name("Remove model");
       folderModel.open();
    }
 
    setMode(params) {
-      const folderMode = gui.addFolder("Mode");
+      const folderMode = gui.addFolder("⚙️ Mode");
       folderMode
          .add(params, "grid")
          .name("Grid")

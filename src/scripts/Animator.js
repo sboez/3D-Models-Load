@@ -4,7 +4,7 @@ const MIN_CLIP_DURATION = 0.1;
 
 export default class Animator {
 	constructor(gui) {
-		this.folder = gui.addFolder('Animation');
+		this.folder = gui.addFolder('🎬 Animation');
 		this.clock = new THREE.Clock();
 		this.mixer = null;
 		this.action = null;
@@ -63,7 +63,7 @@ export default class Animator {
 			this.folder.add({ reset: () => this.restPose() }, 'reset').name('Reset pose')
 		);
 
-		this.timeController = this.folder.add(this.params, 'time', 0, 1, 0.001).name('Time')
+		this.timeController = this.folder.add(this.params, 'time', 0, 1, 0.01).name('Time')
 			.onChange(t => this.seek(t));
 		this.controllers.push(this.timeController);
 
@@ -124,7 +124,8 @@ export default class Animator {
 		this.mixer.update(delta);
 
 		if (this.action && !this.action.paused && this.timeController) {
-			this.params.time = this.duration ? this.action.time % this.duration : 0;
+			const t = this.duration ? this.action.time % this.duration : 0;
+			this.params.time = Math.round(t * 100) / 100;
 			this.timeController.updateDisplay();
 		}
 	}

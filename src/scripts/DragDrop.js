@@ -6,7 +6,29 @@ export default class DragDrop {
 		this.dragCounter = 0;
 
 		this.createOverlay();
+		this.createHint();
 		this.bindEvents();
+	}
+
+	createHint() {
+		this.hint = document.createElement('div');
+		this.hint.textContent = '⤓  Drag & drop a 3D file';
+		Object.assign(this.hint.style, {
+			position: 'fixed',
+			bottom: '14px',
+			left: '50%',
+			transform: 'translateX(-50%)',
+			padding: '7px 14px',
+			font: '12px system-ui, -apple-system, sans-serif',
+			color: '#c8c8cc',
+			background: 'rgba(20, 20, 24, 0.6)',
+			border: '1px solid rgba(255, 255, 255, 0.08)',
+			borderRadius: '999px',
+			pointerEvents: 'none',
+			userSelect: 'none',
+			zIndex: '800',
+		});
+		document.body.appendChild(this.hint);
 	}
 
 	createOverlay() {
