@@ -219,24 +219,28 @@ export default class Gui {
                this.load.currentModel.scale.y =
                this.load.currentModel.scale.z =
                   params.scale;
+            this.load.groundModel(this.load.currentModel);
          });
       folderScale
          .add(params, "scaleX", -500, 500)
          .name("X")
          .onChange(() => {
             this.load.currentModel.scale.x = params.scaleX;
+            this.load.groundModel(this.load.currentModel);
          });
       folderScale
          .add(params, "scaleY", -500, 500)
          .name("Y")
          .onChange(() => {
             this.load.currentModel.scale.y = params.scaleY;
+            this.load.groundModel(this.load.currentModel);
          });
       folderScale
          .add(params, "scaleZ", -500, 500)
          .name("Z")
          .onChange(() => {
             this.load.currentModel.scale.z = params.scaleZ;
+            this.load.groundModel(this.load.currentModel);
          });
    }
 

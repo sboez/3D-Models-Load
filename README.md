@@ -23,6 +23,7 @@ npm run dev
 - **Wireframe** mode
 - **Animations** — play/pause, scrub the timeline, switch clips, adjust speed
 - **Showroom** mode — dramatic multi-spot lighting on a studio floor
+- **Real size** mode — view the model at its true file dimensions on a Blender-style adaptive metric grid
 - Every model is automatically centered, grounded and normalized to a consistent size
 
 ## Supported formats

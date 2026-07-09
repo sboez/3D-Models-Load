@@ -460,12 +460,14 @@ export default class Load {
 		this.reader.readAsArrayBuffer(file);
 	}
 
-	loadSample(path) {
+	async loadSample(path) {
 		this.filename = path.split('/').pop();
 		this.extension = this.filename.split('.').pop().toLowerCase();
-		this.filesize = null;
 		this.loadError = false;
 		this.spinner.show();
+		this.filesize = await fetch(path, { method: 'HEAD' })
+			.then(res => Number(res.headers.get('content-length')) || null)
+			.catch(() => null);
 		return new Promise((resolve) => {
 			new GLTFLoader().load(path, gltf => resolve(this.frameModel(gltf.scene, gltf.animations)));
 		});
