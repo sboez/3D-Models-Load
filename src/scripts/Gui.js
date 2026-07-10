@@ -144,11 +144,11 @@ export default class Gui {
    }
 
    rotate(params) {
-      params.turn === true ? (this.rotateOn = true) : (this.rotateOn = false);
+      this.rotateOn = params.turn;
    }
 
    rotateModel() {
-      if (this.rotateOn == true) this.load.currentModel.rotation.y += 0.005;
+      if (this.rotateOn && this.load.currentModel) this.load.currentModel.rotation.y += 0.005;
    }
 
    remove() {

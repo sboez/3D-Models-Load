@@ -8,14 +8,16 @@ import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader';
 import Spinner from './Spinner';
 import InfoPanel from './InfoPanel';
+import { computeStats } from './ModelStats';
+import { MODEL_EXTENSIONS } from './formats';
 import * as THREE from 'three';
 
 const TARGET_SIZE = 100;
 
 export default class Load {
-	constructor(scene, currentModel) {
+	constructor(scene) {
 		this.scene = scene;
-		this.currentModel = currentModel;
+		this.currentModel = null;
 		this.reader = new FileReader();
 		this.spinner = new Spinner();
 		this.infoPanel = new InfoPanel();
@@ -47,8 +49,7 @@ export default class Load {
 			totalSize += file.size;
 		}
 
-		const modelExt = ['glb', 'gltf', 'fbx', 'stl', 'dae', 'obj', 'ply', '3mf'];
-		const modelFiles = list.filter(f => modelExt.includes(f.name.split('.').pop().toLowerCase()));
+		const modelFiles = list.filter(f => MODEL_EXTENSIONS.includes(f.name.split('.').pop().toLowerCase()));
 		if (!modelFiles.length) {
 			alert('Aucun fichier 3D reconnu dans la sélection.');
 			return;
@@ -133,7 +134,7 @@ export default class Load {
 		});
 	}
 
-	loadFile(file, object) {
+	loadFile(file) {
 		this.filename = file.name;
 		this.extension = this.filename.split('.').pop().toLowerCase();
 		this.loadError = false;
@@ -146,19 +147,19 @@ export default class Load {
 		switch (this.extension) {
 			case 'glb':
 			case 'gltf':
-				this.loadGltf(file, object);
+				this.loadGltf(file);
 				break;
 			case 'fbx':
-				this.loadFbx(file, object);
+				this.loadFbx(file);
 				break;
 			case 'stl':
-				this.loadStl(file, object);
+				this.loadStl(file);
 				break;
 			case 'dae':
-				this.loadDae(file, object);
+				this.loadDae(file);
 				break;
 			case 'obj':
-				this.loadObj(file, object);
+				this.loadObj(file);
 				break;
 			case 'ply':
 				this.loadPly(file);
@@ -208,7 +209,7 @@ export default class Load {
 			targetSize: TARGET_SIZE,
 			zUpFixed: !!object.userData.zUpFixed,
 			fileSize: this.filesize ?? null,
-			...this.computeStats(object),
+			...computeStats(object),
 		};
 
 		this.currentModel = pivot;
@@ -218,50 +219,6 @@ export default class Load {
 		this.infoPanel.update(pivot.userData.info);
 		this.loadListeners.forEach(fn => fn(pivot));
 		return pivot;
-	}
-
-	computeStats(root) {
-		let vertices = 0;
-		let triangles = 0;
-		let meshes = 0;
-		const materials = new Set();
-		const materialNames = [];
-		const textures = new Set();
-		let textureBytes = 0;
-
-		root.traverse(child => {
-			if (!child.isMesh || !child.geometry) return;
-			meshes++;
-			const geometry = child.geometry;
-			const position = geometry.attributes.position;
-			if (position) vertices += position.count;
-			if (geometry.index) triangles += geometry.index.count / 3;
-			else if (position) triangles += position.count / 3;
-
-			const mats = Array.isArray(child.material) ? child.material : [child.material];
-			for (const mat of mats) {
-				if (!mat || materials.has(mat)) continue;
-				materials.add(mat);
-				materialNames.push(mat.name || mat.type);
-				for (const key of Object.keys(mat)) {
-					const value = mat[key];
-					if (value && value.isTexture && !textures.has(value)) {
-						textures.add(value);
-						const image = value.image;
-						if (image && image.width) textureBytes += image.width * image.height * 4 * 1.33;
-					}
-				}
-			}
-		});
-
-		return {
-			meshes,
-			vertices,
-			triangles: Math.round(triangles),
-			materials: materialNames,
-			textureCount: textures.size,
-			textureBytes: Math.round(textureBytes),
-		};
 	}
 
 	clearModel() {
@@ -300,7 +257,7 @@ export default class Load {
 		}
 	}
 
-	loadGltf(file, object) {
+	loadGltf(file) {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
 			const loader = new GLTFLoader(this.manager);
@@ -318,9 +275,10 @@ export default class Load {
 		this.reader.readAsArrayBuffer(file);
 	}
 
-	loadFbx(file, object) {
+	loadFbx(file) {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
+			let object;
 			try {
 				object = new FBXLoader(this.manager).parse(contents, '');
 			}
@@ -333,7 +291,7 @@ export default class Load {
 		this.reader.readAsArrayBuffer(file);
 	}
 
-	loadStl(file, object) {
+	loadStl(file) {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
 			let geometry;
@@ -344,7 +302,7 @@ export default class Load {
 				this.errorMessage(this.filename, error);
 				return;
 			}
-			object = new THREE.Mesh(geometry, this.material);
+			const object = new THREE.Mesh(geometry, this.material);
 			object.rotation.set(-Math.PI / 2, 0, 0);
 			object.userData.zUpFixed = true;
 			this.frameModel(object);
@@ -353,7 +311,7 @@ export default class Load {
 		else this.reader.readAsArrayBuffer(file);
 	}
 
-	loadDae(file, object) {
+	loadDae(file) {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
 			let collada;
@@ -364,7 +322,7 @@ export default class Load {
 				this.errorMessage(this.filename, error);
 				return;
 			}
-			object = collada.scene;
+			const object = collada.scene;
 			for (var i = 0; i < object.children[0].children.length; ++i) {
 				object.children[0].children[i].material = this.material;
 			}
@@ -373,7 +331,7 @@ export default class Load {
 		this.reader.readAsText(file);
 	}
 
-	loadObj(file, object) {
+	loadObj(file) {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
 			const mtlUrl = this.findResource('.mtl');

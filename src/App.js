@@ -17,7 +17,7 @@ class App {
 
 	async letsPlay() {
 		this.scene = new Scene();
-		this.load = new Load(this.scene, this.currentModel);
+		this.load = new Load(this.scene);
 		this.showroom = new Showroom(this.scene);
 		this.gui = new Gui(this.scene, this.load, this.showroom);
 		this.dragDrop = new DragDrop(this.load);

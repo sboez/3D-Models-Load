@@ -1,4 +1,4 @@
-const SUPPORTED = ['glb', 'gltf', 'fbx', 'stl', 'dae', 'obj', 'ply', '3mf'];
+import { MODEL_EXTENSIONS } from './formats';
 
 export default class DragDrop {
 	constructor(load) {
@@ -83,10 +83,10 @@ export default class DragDrop {
 			if (!files.length) return;
 
 			const hasModel = Array.from(files).some(f =>
-				SUPPORTED.includes(f.name.split('.').pop().toLowerCase())
+				MODEL_EXTENSIONS.includes(f.name.split('.').pop().toLowerCase())
 			);
 			if (!hasModel) {
-				alert(`Aucun fichier 3D reconnu.\n\nFormats acceptés : ${SUPPORTED.join(', ')}`);
+				alert(`Aucun fichier 3D reconnu.\n\nFormats acceptés : ${MODEL_EXTENSIONS.join(', ')}`);
 				return;
 			}
 			this.load.loadFiles(files);

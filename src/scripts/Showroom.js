@@ -1,24 +1,18 @@
 import * as THREE from 'three';
 
 export default class Showroom {
-	constructor(scene, spot_left, spot_right, spot_back, spot_front) {
+	constructor(scene) {
 		this.scene = scene;
-
-		this.spots = [
-			this.spot_left = spot_left,
-			this.spot_right = spot_right,
-			this.spot_back = spot_back,
-			this.spot_front = spot_front
-		];
-
+		this.spots = [];
 		this.setLights();
 	}
 
 	setLights() {
-		for (let i = 0; i < this.spots.length; ++i) {
-			this.spots[i] = new THREE.SpotLight();
-			this.spots[i].decay = 0;
-			this.scene.add(this.spots[i]);
+		for (let i = 0; i < 4; ++i) {
+			const spot = new THREE.SpotLight();
+			spot.decay = 0;
+			this.spots.push(spot);
+			this.scene.add(spot);
 		}
 		this.setPos();
 		this.turnOff();
