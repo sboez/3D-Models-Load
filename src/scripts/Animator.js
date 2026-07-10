@@ -23,6 +23,7 @@ export default class Animator {
 		this.action = null;
 		this.timeController = null;
 		this.playController = null;
+		this.clipController = null;
 		this.clips = ((model && model.userData.animations) || []).filter(clip => clip.duration > MIN_CLIP_DURATION);
 
 		if (!this.clips.length) {
@@ -39,29 +40,29 @@ export default class Animator {
 		const idle = this.clips.findIndex(clip => /idle/i.test(clip.name));
 		const startIndex = idle >= 0 ? idle : 0;
 		this.params.clip = startIndex;
+		this.lastClip = startIndex;
 
-		if (this.clips.length > 1) {
-			const names = {};
-			this.clips.forEach((clip, i) => { names[clip.name || `Clip ${i + 1}`] = i; });
-			this.controllers.push(
-				this.folder.add(this.params, 'clip', names).name('Clip').onChange(i => this.playClip(i))
-			);
-		}
+		const names = { '⏸ Reset pose': -1 };
+		this.clips.forEach((clip, i) => { names[clip.name || `Clip ${i + 1}`] = i; });
+		this.clipController = this.folder.add(this.params, 'clip', names).name('Clip')
+			.onChange(i => {
+				if (i === -1) { this.restPose(); return; }
+				this.params.play = true;
+				if (this.playController) this.playController.updateDisplay();
+				this.playClip(i);
+			});
+		this.controllers.push(this.clipController);
 
 		this.playController = this.folder.add(this.params, 'play').name('Play')
 			.onChange(v => {
 				if (v) {
 					if (this.action) this.action.paused = false;
-					else this.playClip(this.params.clip); 
+					else this.playClip(this.params.clip >= 0 ? this.params.clip : this.lastClip);
 				} else if (this.action) {
 					this.action.paused = true;
 				}
 			});
 		this.controllers.push(this.playController);
-
-		this.controllers.push(
-			this.folder.add({ reset: () => this.restPose() }, 'reset').name('Reset pose')
-		);
 
 		this.timeController = this.folder.add(this.params, 'time', 0, 1, 0.01).name('Time')
 			.onChange(t => this.seek(t));
@@ -89,6 +90,9 @@ export default class Animator {
 
 		this.duration = clip.duration || 1;
 		this.params.time = 0;
+		this.params.clip = index;
+		this.lastClip = index;
+		if (this.clipController) this.clipController.updateDisplay();
 		if (this.timeController) {
 			this.timeController.max(this.duration);
 			this.timeController.updateDisplay();
@@ -114,6 +118,10 @@ export default class Animator {
 		}
 		this.params.play = false;
 		this.params.time = 0;
+		if (this.clipController) {
+			this.params.clip = -1;
+			this.clipController.updateDisplay();
+		}
 		if (this.playController) this.playController.updateDisplay();
 		if (this.timeController) this.timeController.updateDisplay();
 	}

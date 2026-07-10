@@ -172,6 +172,12 @@ export default class Gui {
       this.setModel(params);
       this.setMode(params);
       gui.add(params, "reset").name("Reset");
+      gui.add({
+         resetCamera: () => {
+            const box = params.realSize ? new THREE.Box3().setFromObject(this.load.currentModel) : null;
+            this.scene.resetCamera(box);
+         },
+      }, "resetCamera").name("🎥 Reset camera");
 
       this.materialColors = new MaterialColors(gui);
       this.load.addLoadListener((model) => this.materialColors.update(model));
@@ -180,6 +186,13 @@ export default class Gui {
       this.load.addLoadListener((model) => this.animator.setModel(model));
       this.load.addLoadListener((model) => {
          if (model && params.realSize) this.applyRealSize(true);
+      });
+
+      this.load.addLoadListener((model) => {
+         if (model && !this.load.isSample) {
+            this.sampleModels.samples = "__custom__";
+            this.samplesCtrl.updateDisplay();
+         }
       });
    }
 
@@ -265,15 +278,16 @@ export default class Gui {
 
    setModel(params) {
       const folderModel = gui.addFolder("📦 Model");
-      folderModel
+      this.samplesCtrl = folderModel
          .add(this.sampleModels, "samples", {
             "Leia": "./models/gltf/leia.glb",
             "Street Car": "./models/gltf/street_car.glb",
+            "Custom": "__custom__",
          })
          .onChange((value) => {
-            let path = value;
+            if (value === "__custom__") return;
             this.remove();
-            this.load.loadSample(path);
+            this.load.loadSample(value);
          });
       const loadCtrl = folderModel.add(params, "model").name("⤓ Load your model");
       loadCtrl.domElement.classList.add("gui-primary");

@@ -94,7 +94,7 @@ export default class InfoPanel {
 		if (info.zUpFixed) transform.push(this.row('Axis', 'Z-up → Y-up'));
 
 		const textures = info.textureCount
-			? `${info.textureCount} · ${this.bytes(info.textureBytes)}`
+			? `${info.textureCount} · ~${this.bytes(info.textureBytes)} VRAM`
 			: '0';
 		const stats = [
 			this.row('Meshes', this.int(info.meshes)),

@@ -12,12 +12,6 @@ import * as THREE from 'three';
 
 const TARGET_SIZE = 100;
 
-/*** If you want to add a texture for your .OBJ or .DAE model, you need to add
-this lines in the same way of material and change path.
-const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load('assets/texture/image_0.png');
-if (child.isMesh) child.material.map = texture; ***/
-
 export default class Load {
 	constructor(scene, currentModel) {
 		this.scene = scene;
@@ -39,6 +33,7 @@ export default class Load {
 	}
 
 	loadFiles(files) {
+		this.isSample = false;
 		for (const url of this.resources.values()) URL.revokeObjectURL(url);
 		this.resources.clear();
 		this.resourcesLower.clear();
@@ -461,6 +456,7 @@ export default class Load {
 	}
 
 	async loadSample(path) {
+		this.isSample = true;
 		this.filename = path.split('/').pop();
 		this.extension = this.filename.split('.').pop().toLowerCase();
 		this.loadError = false;
@@ -486,7 +482,7 @@ export default class Load {
 
 	resourceError(url) {
 		this.spinner.hide();
-		if (this.loadError) return; /* une seule alerte par chargement */
+		if (this.loadError) return;
 		this.loadError = true;
 		const name = url ? decodeURIComponent(url.split('/').pop().split('\\').pop()) : '';
 		this.missingResourceAlert(name);

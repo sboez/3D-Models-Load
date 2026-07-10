@@ -22,7 +22,7 @@ export default class Scene extends THREE.Scene {
 		this.fog = this.normalFog;
 
 		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000000);
-		this.camera.position.set(75, 102, 175);
+		this.camera.position.set(0, 55, 195);
 
 		this.setFloor();
 		this.setInfiniteGrid();
@@ -142,7 +142,7 @@ export default class Scene extends THREE.Scene {
 
 		this.light = new THREE.DirectionalLight(0xffffff, 2.5);
 		this.light.castShadow = true;
-		this.light.position.set(0, 50, 0)
+		this.light.position.set(60, 90, 50)
 
 		this.light.shadow.mapSize.width = 2048;
 		this.light.shadow.mapSize.height = 2048;
@@ -169,6 +169,24 @@ export default class Scene extends THREE.Scene {
 		this.controls.minDistance = 0;
 		this.controls.maxDistance = 800;
 		this.controls.target = new THREE.Vector3(0, 45, 0);
+		this.controls.update();
+
+		this.defaultCamPos = this.camera.position.clone();
+		this.defaultCamTarget = this.controls.target.clone();
+	}
+
+	resetCamera(box) {
+		if (this._realSize && box) {
+			const size = box.getSize(new THREE.Vector3());
+			const center = box.getCenter(new THREE.Vector3());
+			const maxDim = Math.max(size.x, size.y, size.z) || 1;
+			const dir = new THREE.Vector3().subVectors(this.defaultCamPos, this.defaultCamTarget).normalize();
+			this.camera.position.copy(center).addScaledVector(dir, maxDim * 2.6);
+			this.controls.target.copy(center);
+		} else {
+			this.camera.position.copy(this.defaultCamPos);
+			this.controls.target.copy(this.defaultCamTarget);
+		}
 		this.controls.update();
 	}
 }
