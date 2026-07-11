@@ -2,7 +2,7 @@
 
 ![GitHub stars](https://img.shields.io/github/stars/sboez/3D-Models-Load) ![GitHub](https://img.shields.io/github/license/sboez/3D-Models-Load) <img src="https://img.shields.io/badge/three.js-r185-orange"> <img src="https://img.shields.io/netlify/0ebe41c9-114d-44c6-a8f3-1e9061af7f37">
 
-A browser viewer to inspect 3D assets before production: drag & drop your model, check its stats, tweak material colors, play animations, and show it off in Showroom mode.
+A browser viewer to inspect 3D assets before production: drag & drop your model, check its stats, tweak material colors, play animations, and show it off in Studio mode.
 
 ## Usage
 
@@ -22,7 +22,7 @@ npm run dev
 - **Material colors** — recolor each material to check how the asset is split
 - **Wireframe** mode
 - **Animations** — play/pause, scrub the timeline, switch clips, adjust speed
-- **Showroom** mode — dramatic multi-spot lighting on a studio floor
+- **Studio** mode — a polished showcase with soft, even (shadowless) lighting, a reflective floor, and a gradient backdrop you can recolor via the color picker or Random Color, plus a background-intensity slider (rendered with WebGPU / TSL)
 - **Real size** mode — view the model at its true file dimensions on a Blender-style adaptive metric grid
 - Every model is automatically centered, grounded and normalized to a consistent size
 

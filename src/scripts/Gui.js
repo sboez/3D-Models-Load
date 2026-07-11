@@ -95,7 +95,8 @@ export default class Gui {
             this.load.rotateBy90("z");
          },
          reset: () => {
-            this.normal();
+            const inStudio = params.mode === true;
+            if (!inStudio) this.normal();
             this.rotateOn = false;
             const model = this.load.currentModel;
             const home = model.userData.home;
@@ -119,7 +120,9 @@ export default class Gui {
             params.scale = params.scaleX = params.scaleY = params.scaleZ = 0;
             params.rotX = params.rotY = 0;
             params.turn = false;
-            params.mode = false;
+            if (!inStudio) params.mode = false;
+            params.intens = 2.2;
+            this.studio.applyIntensity(params.intens);
             params.color = 0x311649;
             params.bgIntensity = 1;
             this.scene.resetStudioBg();

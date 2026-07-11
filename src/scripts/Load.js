@@ -1,4 +1,5 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { ColladaLoader } from 'three/examples/jsm/loaders/ColladaLoader';
@@ -32,6 +33,13 @@ export default class Load {
 			return this.resources.get(name) || this.resourcesLower.get(name.toLowerCase()) || url;
 		});
 		this.manager.onError = url => this.resourceError(url);
+		this.dracoLoader = new DRACOLoader().setDecoderPath('./draco/');
+	}
+
+	gltfLoader(manager) {
+		const loader = manager ? new GLTFLoader(manager) : new GLTFLoader();
+		loader.setDRACOLoader(this.dracoLoader);
+		return loader;
 	}
 
 	loadFiles(files) {
@@ -98,7 +106,7 @@ export default class Load {
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
 			reader.onload = event => {
-				new GLTFLoader(this.manager).parse(
+				this.gltfLoader(this.manager).parse(
 					event.target.result, '',
 					gltf => resolve({ file, gltf }),
 					error => reject(error)
@@ -129,7 +137,7 @@ export default class Load {
 		model.traverse(child => {
 			if (!child.isMesh) return;
 			const mats = Array.isArray(child.material) ? child.material : [child.material];
-			mats.forEach(mat => { if (mat) mat.wireframe = this.wireframe; });
+			mats.forEach(mat => { if (mat) { mat.wireframe = this.wireframe; mat.needsUpdate = true; } });
 			child.castShadow = !this.wireframe;
 		});
 	}
@@ -260,7 +268,7 @@ export default class Load {
 	loadGltf(file) {
 		this.reader.onload = readerEvent => {
 			const contents = readerEvent.target.result;
-			const loader = new GLTFLoader(this.manager);
+			const loader = this.gltfLoader(this.manager);
 			try {
 				loader.parse(
 					contents, '',
@@ -423,7 +431,7 @@ export default class Load {
 			.then(res => Number(res.headers.get('content-length')) || null)
 			.catch(() => null);
 		return new Promise((resolve) => {
-			new GLTFLoader().load(path, gltf => resolve(this.frameModel(gltf.scene, gltf.animations)));
+			this.gltfLoader().load(path, gltf => resolve(this.frameModel(gltf.scene, gltf.animations)));
 		});
 	}
 
