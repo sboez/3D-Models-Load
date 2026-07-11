@@ -65,8 +65,9 @@ export default class Gui {
          scaleZ: 0,
          rotY: 0,
          rotX: 0,
-         intens: 2,
-         color: 0xffffff,
+         intens: 2.2,
+         color: 0x311649,
+         bgIntensity: 1,
          mode: false,
          turn: false,
          wireframe: false,
@@ -95,8 +96,6 @@ export default class Gui {
          },
          reset: () => {
             this.normal();
-            this.studio.setPos();
-            this.studio.setColor();
             this.rotateOn = false;
             const model = this.load.currentModel;
             const home = model.userData.home;
@@ -121,10 +120,16 @@ export default class Gui {
             params.rotX = params.rotY = 0;
             params.turn = false;
             params.mode = false;
+            params.color = 0x311649;
+            params.bgIntensity = 1;
+            this.scene.resetStudioBg();
+            this.scene.uBgIntensity.value = 1;
             gui.controllersRecursive().forEach((c) => c.updateDisplay());
          },
          randomColor: () => {
-            this.studio.randomColor();
+            params.color = Math.floor(Math.random() * 0xffffff);
+            this.scene.setStudioBgColor(params.color);
+            this.colorCtrl.updateDisplay();
          },
       };
       this.setGUI(params);
@@ -133,7 +138,8 @@ export default class Gui {
    studioMode(params) {
       if (params.mode === false) this.normal();
       else {
-         this.scene.background = new THREE.Color(0x000000);
+         this.scene.backgroundNode = this.scene.studioBgNode;
+         this.scene.background = null;
          this.scene.hemLight.visible = false;
          this.scene.light.visible = false;
          this.scene.setGroundStyle(true);
@@ -157,6 +163,7 @@ export default class Gui {
    }
 
    normal() {
+      this.scene.backgroundNode = null;
       this.scene.background = this.scene.defaultBackground;
       this.scene.hemLight.visible = true;
       this.scene.light.visible = true;
@@ -325,15 +332,19 @@ export default class Gui {
          });
       this.colorCtrl = folderMode
          .addColor(params, "color")
-         .name("Color")
+         .name("Background")
          .onChange(() => {
-            for (let i = 0; i < this.studio.spots.length; ++i) {
-               this.studio.spots[i].color.set(params.color);
-            }
+            this.scene.setStudioBgColor(params.color);
+         });
+      this.bgIntensCtrl = folderMode
+         .add(params, "bgIntensity", 0, 3)
+         .name("Bg intensity")
+         .onChange(() => {
+            this.scene.uBgIntensity.value = params.bgIntensity;
          });
       this.intensCtrl = folderMode
          .add(params, "intens", 1, 10)
-         .name("Intensity")
+         .name("Lights intensity")
          .onChange(() => {
             this.studio.applyIntensity(params.intens);
          });
@@ -346,6 +357,7 @@ export default class Gui {
    showStudioControls(show) {
       if (!this.colorCtrl) return;
       this.colorCtrl.show(show);
+      this.bgIntensCtrl.show(show);
       this.intensCtrl.show(show);
       this.randomColorCtrl.show(show);
    }

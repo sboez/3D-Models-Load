@@ -22,11 +22,13 @@ class App {
 		this.gui = new Gui(this.scene, this.load, this.studio);
 		this.dragDrop = new DragDrop(this.load);
 
+		await this.scene.renderer.init();
+
 		await this.load.loadSample('./models/gltf/leia.glb');
 		this.gui.addGUI(this.load.currentModel);
 
 		this.init();
-		this.animate();
+		this.scene.renderer.setAnimationLoop(this.animate.bind(this));
 	}
 
 	init() {
@@ -41,7 +43,6 @@ class App {
 	}
 
 	animate() {
-		requestAnimationFrame(this.animate.bind(this));
 		this.gui.updateAnimation();
 		this.scene.updateFog();
 		this.scene.updateInfiniteGrid();

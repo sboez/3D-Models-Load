@@ -4,6 +4,11 @@ export default defineConfig({
    root: '.',
    publicDir: 'public',
    base: './',
+   resolve: {
+      alias: [
+         { find: /^three$/, replacement: 'three/webgpu' },
+      ],
+   },
    server: {
       open: true,
    },

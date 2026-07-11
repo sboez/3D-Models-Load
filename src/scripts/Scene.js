@@ -1,6 +1,5 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment';
-import { Reflector } from 'three/examples/jsm/objects/Reflector';
+import { screenUV, vec2, mix, uniform, reflector, positionWorld } from 'three/tsl';
 import InfiniteGrid from './InfiniteGrid';
 import * as THREE from 'three';
 
@@ -22,6 +21,14 @@ export default class Scene extends THREE.Scene {
 		this.background = this.defaultBackground;
 		this.normalFog = new THREE.Fog(this.defaultBackground, 200, 600);
 		this.fog = this.normalFog;
+
+		this.uBgA = uniform(new THREE.Color(0x13172b));
+		this.uBgB = uniform(new THREE.Color(0x311649));
+		this.uBgGlow = uniform(new THREE.Color(0x0c5d68));
+		this.uBgIntensity = uniform(1);
+		this.studioBgNode = mix(this.uBgA, this.uBgB, screenUV.x)
+			.add(screenUV.distance(vec2(0.5, 1.0)).oneMinus().mul(this.uBgGlow))
+			.mul(this.uBgIntensity);
 
 		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000000);
 		this.camera.position.set(0, 55, 195);
@@ -51,13 +58,18 @@ export default class Scene extends THREE.Scene {
 	}
 
 	setMirrorFloor() {
-		const dpr = Math.min(window.devicePixelRatio, 2);
-		this.mirrorFloor = new Reflector(new THREE.PlaneGeometry(FLOOR_SIZE, FLOOR_SIZE), {
-			clipBias: 0.003,
-			textureWidth: Math.floor(window.innerWidth * dpr),
-			textureHeight: Math.floor(window.innerHeight * dpr),
-			color: 0x555555,
-		});
+		const reflection = reflector();
+		reflection.target.rotateX(-Math.PI / 2);
+		this.add(reflection.target);
+
+		const mask = positionWorld.xz.length().mul(0.004).clamp().oneMinus();
+
+		const material = new THREE.NodeMaterial();
+		material.colorNode = reflection.rgb;
+		material.opacityNode = mask.mul(0.55);
+		material.transparent = true;
+
+		this.mirrorFloor = new THREE.Mesh(new THREE.PlaneGeometry(FLOOR_SIZE, FLOOR_SIZE), material);
 		this.mirrorFloor.rotation.x = -Math.PI / 2;
 		this.mirrorFloor.position.y = -0.05;
 		this.mirrorFloor.visible = false;
@@ -136,21 +148,23 @@ export default class Scene extends THREE.Scene {
 	}
 
 	setStudioEnv(on) {
-		if (on) {
-			if (!this.studioEnvironment) {
-				const pmrem = new THREE.PMREMGenerator(this.renderer);
-				this.studioEnvironment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-				pmrem.dispose();
-			}
-			this.environment = this.studioEnvironment;
-			this.environmentIntensity = 0.35;
-			this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-			this.renderer.toneMappingExposure = 0.9;
-		} else {
-			this.environment = null;
-			this.renderer.toneMapping = THREE.NoToneMapping;
-			this.renderer.toneMappingExposure = 1;
-		}
+		this.renderer.toneMapping = on ? THREE.NeutralToneMapping : THREE.NoToneMapping;
+		this.renderer.toneMappingExposure = 1;
+	}
+
+	setStudioBgColor(hex) {
+		const hsl = { h: 0, s: 0, l: 0 };
+		new THREE.Color(hex).getHSL(hsl);
+		const l = THREE.MathUtils.clamp(hsl.l, 0.12, 0.3);
+		this.uBgB.value.setHSL(hsl.h, hsl.s, l);
+		this.uBgA.value.setHSL((hsl.h - 40 / 360 + 1) % 1, hsl.s, l * 0.55);
+		this.uBgGlow.value.setHSL((hsl.h - 85 / 360 + 1) % 1, Math.min(hsl.s + 0.25, 1), Math.min(l + 0.08, 0.32));
+	}
+
+	resetStudioBg() {
+		this.uBgA.value.setHex(0x13172b);
+		this.uBgB.value.setHex(0x311649);
+		this.uBgGlow.value.setHex(0x0c5d68);
 	}
 
 	radialAlphaTexture() {
@@ -193,7 +207,7 @@ export default class Scene extends THREE.Scene {
 	}
 
 	setRenderer() {
-		this.renderer = new THREE.WebGLRenderer({ antialias: true });
+		this.renderer = new THREE.WebGPURenderer({ antialias: true });
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 		this.renderer.shadowMap.enabled = true;
