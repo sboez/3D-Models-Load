@@ -6,10 +6,10 @@ import Animator from "./Animator";
 const gui = new GUI();
 
 export default class Gui {
-   constructor(scene, load, showroom) {
+   constructor(scene, load, studio) {
       this.scene = scene;
       this.load = load;
-      this.showroom = showroom;
+      this.studio = studio;
 
       this.sampleModels = { samples: "./models/gltf/leia.glb" };
       this.styleGUI();
@@ -27,7 +27,7 @@ export default class Gui {
          this.scene.applyNormalView();
          this.load.infoPanel.setRealSize(false);
       }
-      if (this.showroomCtrl) this.showroomCtrl.enable(!on);
+      if (this.studioCtrl) this.studioCtrl.enable(!on);
    }
 
    styleGUI() {
@@ -65,7 +65,7 @@ export default class Gui {
          scaleZ: 0,
          rotY: 0,
          rotX: 0,
-         intens: 3,
+         intens: 2,
          color: 0xffffff,
          mode: false,
          turn: false,
@@ -95,8 +95,8 @@ export default class Gui {
          },
          reset: () => {
             this.normal();
-            this.showroom.setPos();
-            this.showroom.setColor();
+            this.studio.setPos();
+            this.studio.setColor();
             this.rotateOn = false;
             const model = this.load.currentModel;
             const home = model.userData.home;
@@ -113,7 +113,7 @@ export default class Gui {
                params.realSize = false;
                this.scene.applyNormalView();
                this.load.infoPanel.setRealSize(false);
-               if (this.showroomCtrl) this.showroomCtrl.enable(true);
+               if (this.studioCtrl) this.studioCtrl.enable(true);
             }
 
             params.posX = params.posY = params.posZ = 0;
@@ -124,21 +124,22 @@ export default class Gui {
             gui.controllersRecursive().forEach((c) => c.updateDisplay());
          },
          randomColor: () => {
-            this.showroom.randomColor();
+            this.studio.randomColor();
          },
       };
       this.setGUI(params);
    }
 
-   showroomMode(params) {
+   studioMode(params) {
       if (params.mode === false) this.normal();
       else {
          this.scene.background = new THREE.Color(0x000000);
          this.scene.hemLight.visible = false;
          this.scene.light.visible = false;
          this.scene.setGroundStyle(true);
-         this.showShowroomControls(true);
-         this.showroom.turnOn();
+         this.scene.setStudioEnv(true);
+         this.showStudioControls(true);
+         this.studio.turnOn();
          if (this.realSizeCtrl) this.realSizeCtrl.enable(false);
       }
    }
@@ -160,8 +161,9 @@ export default class Gui {
       this.scene.hemLight.visible = true;
       this.scene.light.visible = true;
       this.scene.setGroundStyle(false);
-      this.showShowroomControls(false);
-      this.showroom.turnOff();
+      this.scene.setStudioEnv(false);
+      this.showStudioControls(false);
+      this.studio.turnOff();
       if (this.realSizeCtrl) this.realSizeCtrl.enable(true);
    }
 
@@ -309,11 +311,11 @@ export default class Gui {
          .onChange(() => {
             this.load.setWireframe(params.wireframe);
          });
-      this.showroomCtrl = folderMode
+      this.studioCtrl = folderMode
          .add(params, "mode")
-         .name("Showroom")
+         .name("Studio")
          .onChange(() => {
-            this.showroomMode(params);
+            this.studioMode(params);
          });
       folderMode
          .add(params, "turn")
@@ -325,27 +327,23 @@ export default class Gui {
          .addColor(params, "color")
          .name("Color")
          .onChange(() => {
-            for (let i = 0; i < this.showroom.spots.length; ++i) {
-               this.showroom.spots[i].color.set(params.color);
+            for (let i = 0; i < this.studio.spots.length; ++i) {
+               this.studio.spots[i].color.set(params.color);
             }
          });
       this.intensCtrl = folderMode
          .add(params, "intens", 1, 10)
          .name("Intensity")
          .onChange(() => {
-            for (let i = 0; i < this.showroom.spots.length; ++i) {
-               this.showroom.spots[i].intensity = params.intens;
-            }
+            this.studio.applyIntensity(params.intens);
          });
-      for (let i = 0; i < this.showroom.spots.length; ++i) {
-         this.showroom.spots[i].intensity = params.intens;
-      }
+      this.studio.applyIntensity(params.intens);
       this.randomColorCtrl = folderMode.add(params, "randomColor").name("Random Color");
 
-      this.showShowroomControls(false);
+      this.showStudioControls(false);
    }
 
-   showShowroomControls(show) {
+   showStudioControls(show) {
       if (!this.colorCtrl) return;
       this.colorCtrl.show(show);
       this.intensCtrl.show(show);

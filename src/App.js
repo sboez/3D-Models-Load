@@ -1,6 +1,6 @@
 import Scene from './scripts/Scene';
 import Load from './scripts/Load';
-import Showroom from './scripts/Showroom';
+import Studio from './scripts/Studio';
 import Gui from './scripts/Gui';
 import DragDrop from './scripts/DragDrop';
 
@@ -8,7 +8,7 @@ class App {
 	constructor() {
 		this.scene = null;
 		this.load = null;
-		this.showroom = null;
+		this.studio = null;
 		this.gui = null;
 		this.dragDrop = null;
 
@@ -18,8 +18,8 @@ class App {
 	async letsPlay() {
 		this.scene = new Scene();
 		this.load = new Load(this.scene);
-		this.showroom = new Showroom(this.scene);
-		this.gui = new Gui(this.scene, this.load, this.showroom);
+		this.studio = new Studio(this.scene);
+		this.gui = new Gui(this.scene, this.load, this.studio);
 		this.dragDrop = new DragDrop(this.load);
 
 		await this.load.loadSample('./models/gltf/leia.glb');

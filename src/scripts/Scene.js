@@ -1,4 +1,6 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment';
+import { Reflector } from 'three/examples/jsm/objects/Reflector';
 import InfiniteGrid from './InfiniteGrid';
 import * as THREE from 'three';
 
@@ -25,6 +27,7 @@ export default class Scene extends THREE.Scene {
 		this.camera.position.set(0, 55, 195);
 
 		this.setFloor();
+		this.setMirrorFloor();
 		this.setInfiniteGrid();
 		this.setLights();
 		this.setRenderer();
@@ -47,8 +50,22 @@ export default class Scene extends THREE.Scene {
 		this.add(this.plane);
 	}
 
+	setMirrorFloor() {
+		const dpr = Math.min(window.devicePixelRatio, 2);
+		this.mirrorFloor = new Reflector(new THREE.PlaneGeometry(FLOOR_SIZE, FLOOR_SIZE), {
+			clipBias: 0.003,
+			textureWidth: Math.floor(window.innerWidth * dpr),
+			textureHeight: Math.floor(window.innerHeight * dpr),
+			color: 0x555555,
+		});
+		this.mirrorFloor.rotation.x = -Math.PI / 2;
+		this.mirrorFloor.position.y = -0.05;
+		this.mirrorFloor.visible = false;
+		this.add(this.mirrorFloor);
+	}
+
 	updateFog() {
-		if (!this.fog) return; /* Showroom : pas de fog */
+		if (!this.fog) return;
 		const distance = this.camera.position.distanceTo(this.controls.target);
 		this.fog.near = distance * FOG_NEAR_FACTOR;
 		this.fog.far = distance * FOG_FAR_FACTOR;
@@ -103,17 +120,37 @@ export default class Scene extends THREE.Scene {
 		this.infiniteGrid.setFade(distance * 4);
 	}
 
-	setGroundStyle(showroom) {
-		if (showroom) {
+	setGroundStyle(studio) {
+		if (studio) {
 			this.fog = null;
-			this.plane.material.alphaMap = this.floorAlpha;
-			this.plane.material.transparent = true;
+			this.plane.visible = false;
+			this.mirrorFloor.visible = true;
 		} else {
 			this.fog = this.normalFog;
+			this.plane.visible = true;
+			this.mirrorFloor.visible = false;
 			this.plane.material.alphaMap = null;
 			this.plane.material.transparent = false;
+			this.plane.material.needsUpdate = true;
 		}
-		this.plane.material.needsUpdate = true;
+	}
+
+	setStudioEnv(on) {
+		if (on) {
+			if (!this.studioEnvironment) {
+				const pmrem = new THREE.PMREMGenerator(this.renderer);
+				this.studioEnvironment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+				pmrem.dispose();
+			}
+			this.environment = this.studioEnvironment;
+			this.environmentIntensity = 0.35;
+			this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+			this.renderer.toneMappingExposure = 0.9;
+		} else {
+			this.environment = null;
+			this.renderer.toneMapping = THREE.NoToneMapping;
+			this.renderer.toneMappingExposure = 1;
+		}
 	}
 
 	radialAlphaTexture() {
