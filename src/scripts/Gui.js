@@ -304,6 +304,7 @@ export default class Gui {
       const loadCtrl = folderModel.add(params, "model").name("⤓ Load your model");
       loadCtrl.domElement.classList.add("gui-primary");
       folderModel.add(params, "remove").name("Remove model");
+      folderModel.add({ export: () => this.load.exportGLB() }, "export").name("⤒ Export .glb");
       folderModel.open();
    }
 

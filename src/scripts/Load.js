@@ -1,5 +1,6 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { ColladaLoader } from 'three/examples/jsm/loaders/ColladaLoader';
@@ -40,6 +41,32 @@ export default class Load {
 		const loader = manager ? new GLTFLoader(manager) : new GLTFLoader();
 		loader.setDRACOLoader(this.dracoLoader);
 		return loader;
+	}
+
+	exportGLB() {
+		if (!this.currentModel) { alert('Load a model first.'); return; }
+		this.spinner.show();
+		const target = this.currentModel.children[0] || this.currentModel;
+		const animations = this.currentModel.userData.animations || [];
+		new GLTFExporter().parse(
+			target,
+			result => {
+				this.spinner.hide();
+				const blob = new Blob([result], { type: 'model/gltf-binary' });
+				const base = (this.filename || 'model').replace(/\.[^.]+$/, '');
+				const a = document.createElement('a');
+				a.href = URL.createObjectURL(blob);
+				a.download = `${base}-edited.glb`;
+				a.click();
+				URL.revokeObjectURL(a.href);
+			},
+			error => {
+				this.spinner.hide();
+				console.error(error);
+				alert('Export failed: ' + error.message);
+			},
+			{ binary: true, animations }
+		);
 	}
 
 	loadFiles(files) {
